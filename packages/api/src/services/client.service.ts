@@ -1,24 +1,22 @@
 import type { z } from 'zod';
 
-import type { Database } from '../db/index.js';
+import type { ClientQueries } from '../queries/index.js';
 
-import { clients } from '../db/schema.js';
 import { insertClientSchema } from '../db/validation.js';
 
 export type ClientService = ReturnType<typeof createClientService>;
 
 type CreateClientData = z.infer<typeof insertClientSchema>;
 
-export function createClientService(db: Database) {
+export function createClientService(queries: ClientQueries) {
   return {
     async createClient(data: CreateClientData) {
       const { description, name } = data;
-      const [client] = await db.insert(clients).values({ description, name }).returning();
-      return client;
+      return queries.insertClient({ description, name });
     },
 
     async getClients() {
-      return db.select().from(clients).orderBy(clients.name);
+      return queries.selectAllClients();
     },
   };
 }

@@ -1,13 +1,11 @@
 import type { forkSkillSchema, skillsQuerySchema } from '@emergent/shared';
 import type { z } from 'zod';
 
-import { and, eq, ilike, sql } from 'drizzle-orm';
 import { HTTPException } from 'hono/http-exception';
 
-import type { Database } from '../db/index.js';
 import type { GitHubClient } from '../lib/github.js';
+import type { SkillQueries } from '../queries/index.js';
 
-import { projects, projectSkills, skills } from '../db/schema.js';
 import { insertSkillSchema } from '../db/validation.js';
 
 export type SkillService = ReturnType<typeof createSkillService>;
@@ -16,7 +14,7 @@ type ForkSkillData = z.infer<typeof forkSkillSchema>;
 
 type SkillsQuery = z.infer<typeof skillsQuerySchema>;
 
-export function createSkillService(db: Database, github: GitHubClient) {
+export function createSkillService(queries: SkillQueries, github: GitHubClient) {
   async function deriveGithubPath(
     name: string,
     isGlobal: boolean,
@@ -27,7 +25,7 @@ export function createSkillService(db: Database, github: GitHubClient) {
     }
 
     // Look up project slug
-    const [project] = await db.select().from(projects).where(eq(projects.id, projectId!));
+    const project = await queries.selectProjectById(projectId!);
 
     if (!project) {
       throw new HTTPException(404, { message: 'Project not found' });
@@ -47,21 +45,18 @@ export function createSkillService(db: Database, github: GitHubClient) {
       // TODO: Commit files to GitHub via github.commitFiles()
 
       // Insert metadata into database
-      const [skill] = await db
-        .insert(skills)
-        .values({
-          category,
-          description,
-          githubPath,
-          isGlobal,
-          name,
-          uploadedBy,
-        })
-        .returning();
+      const skill = await queries.insertSkill({
+        category,
+        description,
+        githubPath,
+        isGlobal,
+        name,
+        uploadedBy,
+      });
 
       // If project-specific, create project_skills entry
       if (!isGlobal && projectId) {
-        await db.insert(projectSkills).values({
+        await queries.insertProjectSkill({
           isCustomized: false,
           projectId,
           skillId: skill.id,
@@ -72,17 +67,14 @@ export function createSkillService(db: Database, github: GitHubClient) {
     },
 
     async downloadSkill(id: string) {
-      const [skill] = await db.select().from(skills).where(eq(skills.id, id));
+      const skill = await queries.selectSkillById(id);
 
       if (!skill) {
         throw new HTTPException(404, { message: 'Skill not found' });
       }
 
       // Increment download count
-      await db
-        .update(skills)
-        .set({ downloadCount: sql`${skills.downloadCount} + 1` })
-        .where(eq(skills.id, id));
+      await queries.incrementDownloadCount(id);
 
       // Fetch file listing from GitHub
       const files = await github.listFiles(skill.githubPath);
@@ -98,14 +90,14 @@ export function createSkillService(db: Database, github: GitHubClient) {
       const { newName, projectId } = data;
 
       // Get original skill
-      const [original] = await db.select().from(skills).where(eq(skills.id, id));
+      const original = await queries.selectSkillById(id);
 
       if (!original) {
         throw new HTTPException(404, { message: 'Skill not found' });
       }
 
       // Get project
-      const [project] = await db.select().from(projects).where(eq(projects.id, projectId));
+      const project = await queries.selectProjectById(projectId);
 
       if (!project) {
         throw new HTTPException(404, { message: 'Project not found' });
@@ -118,22 +110,19 @@ export function createSkillService(db: Database, github: GitHubClient) {
       // TODO: Copy files from original.githubPath to new githubPath via GitHub API
 
       // Create new skill record
-      const [forked] = await db
-        .insert(skills)
-        .values({
-          category: original.category,
-          description: original.description,
-          githubPath,
-          isGlobal: false,
-          name: skillName,
-          parentSkillId: original.id,
-          uploadedBy: original.uploadedBy,
-          version: original.version,
-        })
-        .returning();
+      const forked = await queries.insertSkill({
+        category: original.category,
+        description: original.description,
+        githubPath,
+        isGlobal: false,
+        name: skillName,
+        parentSkillId: original.id,
+        uploadedBy: original.uploadedBy,
+        version: original.version,
+      });
 
       // Create project_skills entry
-      await db.insert(projectSkills).values({
+      await queries.insertProjectSkill({
         isCustomized: true,
         projectId,
         skillId: forked.id,
@@ -143,7 +132,7 @@ export function createSkillService(db: Database, github: GitHubClient) {
     },
 
     async getSkillById(id: string) {
-      const [skill] = await db.select().from(skills).where(eq(skills.id, id));
+      const skill = await queries.selectSkillById(id);
 
       if (!skill) {
         throw new HTTPException(404, { message: 'Skill not found' });
@@ -153,25 +142,11 @@ export function createSkillService(db: Database, github: GitHubClient) {
     },
 
     async getSkills(query?: SkillsQuery) {
-      const conditions = [];
-
-      if (query?.search) {
-        conditions.push(ilike(skills.name, `%${query.search}%`));
-      }
-      if (query?.category) {
-        conditions.push(eq(skills.category, query.category));
-      }
-      if (query?.isGlobal !== undefined) {
-        conditions.push(eq(skills.isGlobal, query.isGlobal));
-      }
-
-      const where = conditions.length > 0 ? and(...conditions) : undefined;
-
-      return db.select().from(skills).where(where).orderBy(skills.name);
+      return queries.selectSkills(query);
     },
 
     async rateSkill(id: string, rating: number) {
-      const [skill] = await db.select().from(skills).where(eq(skills.id, id));
+      const skill = await queries.selectSkillById(id);
 
       if (!skill) {
         throw new HTTPException(404, { message: 'Skill not found' });
@@ -181,15 +156,11 @@ export function createSkillService(db: Database, github: GitHubClient) {
       const newRatingCount = skill.ratingCount + 1;
       const newAverageRating = (newTotalRating / newRatingCount).toFixed(2);
 
-      const [updated] = await db
-        .update(skills)
-        .set({
-          averageRating: newAverageRating,
-          ratingCount: newRatingCount,
-          totalRating: newTotalRating,
-        })
-        .where(eq(skills.id, id))
-        .returning();
+      const updated = await queries.updateSkillRating(id, {
+        averageRating: newAverageRating,
+        ratingCount: newRatingCount,
+        totalRating: newTotalRating,
+      });
 
       return updated;
     },

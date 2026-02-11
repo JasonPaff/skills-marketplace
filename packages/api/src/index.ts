@@ -12,6 +12,7 @@ import type { AppEnv } from './types/env.js';
 
 import { createDb } from './db/index.js';
 import { createGitHubClient } from './lib/github.js';
+import { createClientQueries, createProjectQueries, createSkillQueries } from './queries/index.js';
 import { clientsRouter } from './routes/clients.js';
 import { projectsRouter } from './routes/projects.js';
 import { skillsRouter } from './routes/skills.js';
@@ -43,9 +44,13 @@ app.use('/api/*', async (c, next) => {
   c.set('db', db);
   c.set('github', github);
 
-  const clientService = createClientService(db);
-  const projectService = createProjectService(db);
-  const skillService = createSkillService(db, github);
+  const clientQueries = createClientQueries(db);
+  const projectQueries = createProjectQueries(db);
+  const skillQueries = createSkillQueries(db);
+
+  const clientService = createClientService(clientQueries);
+  const projectService = createProjectService(projectQueries);
+  const skillService = createSkillService(skillQueries, github);
 
   c.set('clientService', clientService);
   c.set('projectService', projectService);
