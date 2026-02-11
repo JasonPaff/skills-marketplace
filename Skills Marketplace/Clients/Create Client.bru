@@ -1,0 +1,23 @@
+meta {
+  name: Create Client
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://skills-marketplace-api.vercel.app/api/clients
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Acme Corp",
+    "description": "A sample client organization"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

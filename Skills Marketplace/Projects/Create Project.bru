@@ -1,0 +1,24 @@
+meta {
+  name: Create Project
+  type: http
+  seq: 4
+}
+
+post {
+  url: https://skills-marketplace-api.vercel.app/api/projects
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "My Project",
+    "clientId": "00000000-0000-0000-0000-000000000000",
+    "description": "A sample project"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,20 @@
+meta {
+  name: Get Project Skills
+  type: http
+  seq: 3
+}
+
+get {
+  url: https://skills-marketplace-api.vercel.app/api/projects/:id/skills
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 224fb415-a835-4371-ab39-fbfefd220463
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

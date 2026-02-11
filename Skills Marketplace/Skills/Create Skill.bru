@@ -1,0 +1,28 @@
+meta {
+  name: Create Skill
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://skills-marketplace-api.vercel.app/api/skills
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "My Skill",
+    "description": "A sample skill",
+    "category": "general",
+    "isGlobal": false,
+    "uploadedBy": "user@example.com",
+    "projectId": "00000000-0000-0000-0000-000000000000",
+    "files": []
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

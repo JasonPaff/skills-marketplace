@@ -1,0 +1,43 @@
+name: CLI Checks
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - packages/cli/**
+      - pnpm-lock.yaml
+  pull_request:
+    branches: [master]
+    paths:
+      - packages/cli/**
+      - pnpm-lock.yaml
+
+concurrency:
+  group: cli-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint, Typecheck & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm lint --filter=@detergent/skills
+
+      - run: pnpm typecheck --filter=@detergent/skills
+
+      - run: pnpm build --filter=@detergent/skills
+
+      - name: Smoke test
+        run: node packages/cli/dist/index.js --help
