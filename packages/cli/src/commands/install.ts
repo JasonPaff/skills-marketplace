@@ -1,6 +1,16 @@
 import type { InstallTarget, Skill, SkillScope } from '@emergent/shared';
 
-import { cancel, intro, isCancel, log, multiselect, note, outro, select, spinner } from '@clack/prompts';
+import {
+  cancel,
+  intro,
+  isCancel,
+  log,
+  multiselect,
+  note,
+  outro,
+  select,
+  spinner,
+} from '@clack/prompts';
 import { INSTALL_TARGETS, SKILL_SCOPES } from '@emergent/shared';
 import chalk from 'chalk';
 import { Command } from 'commander';
@@ -32,9 +42,7 @@ async function resolveSkill(skillArg: string): Promise<Skill> {
   // Name-based lookup — the API returns an array of skills.
   const results = await fetchSkillByName(skillArg);
 
-  const exactMatch = results.find(
-    (s: Skill) => s.name.toLowerCase() === skillArg.toLowerCase(),
-  );
+  const exactMatch = results.find((s: Skill) => s.name.toLowerCase() === skillArg.toLowerCase());
 
   if (exactMatch) {
     return exactMatch;
@@ -82,7 +90,7 @@ export const installCommand = new Command('install')
   .option('--scope <scope>', 'Installation scope (global or project)')
   .option('--provider <provider>', 'Target provider (claude or copilot)')
   .action(async (skillArg: string, options: { provider?: string; scope?: string }) => {
-    intro(chalk.bold.cyan(' Emergent Skills Installer '));
+    intro(chalk.bold.cyan(' Detergent Skills Installer '));
 
     const s = spinner();
 
