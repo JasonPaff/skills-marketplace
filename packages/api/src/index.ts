@@ -8,29 +8,16 @@ import { cors } from 'hono/cors';
 import { HTTPException } from 'hono/http-exception';
 import { logger } from 'hono/logger';
 
-import type { Database } from './db/index.js';
-import type { GitHubClient } from './lib/github.js';
+import type { AppEnv } from './types/env.js';
 
 import { createDb } from './db/index.js';
 import { createGitHubClient } from './lib/github.js';
 import { clientsRouter } from './routes/clients.js';
 import { projectsRouter } from './routes/projects.js';
 import { skillsRouter } from './routes/skills.js';
+import { createClientService, createProjectService, createSkillService } from './services/index.js';
 
-type Env = {
-  Bindings: {
-    DATABASE_URL: string;
-    GITHUB_OWNER: string;
-    GITHUB_REPO: string;
-    GITHUB_TOKEN: string;
-  };
-  Variables: {
-    db: Database;
-    github: GitHubClient;
-  };
-};
-
-const app = new Hono<Env>();
+const app = new Hono<AppEnv>();
 
 // ─── Middleware ────────────────────────────────────────────────────
 
@@ -55,6 +42,15 @@ app.use('/api/*', async (c, next) => {
 
   c.set('db', db);
   c.set('github', github);
+
+  const clientService = createClientService(db);
+  const projectService = createProjectService(db);
+  const skillService = createSkillService(db, github);
+
+  c.set('clientService', clientService);
+  c.set('projectService', projectService);
+  c.set('skillService', skillService);
+
   await next();
 });
 

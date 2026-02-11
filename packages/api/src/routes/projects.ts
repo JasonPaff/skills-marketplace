@@ -1,129 +1,45 @@
 import { projectsQuerySchema } from '@emergent/shared';
 import { zValidator } from '@hono/zod-validator';
-import { eq } from 'drizzle-orm';
 import { Hono } from 'hono';
-import { HTTPException } from 'hono/http-exception';
 import { z } from 'zod';
 
-import type { Database } from '../db/index.js';
+import type { AppEnv } from '../types/env.js';
 
-import { clients, projects, projectSkills, skills } from '../db/schema.js';
 import { insertProjectSchema } from '../db/validation.js';
-
-type Env = {
-  Variables: {
-    db: Database;
-  };
-};
 
 const idParamSchema = z.object({ id: z.string().uuid() });
 
-const projectsRouter = new Hono<Env>();
+const projectsRouter = new Hono<AppEnv>();
 
 // GET /api/projects - List projects with optional client filter
 projectsRouter.get('/', zValidator('query', projectsQuerySchema), async (c) => {
-  const { clientId } = c.req.valid('query');
-  const db = c.get('db');
-
-  const query = db
-    .select({
-      clientId: projects.clientId,
-      clientName: clients.name,
-      createdAt: projects.createdAt,
-      description: projects.description,
-      id: projects.id,
-      isActive: projects.isActive,
-      name: projects.name,
-    })
-    .from(projects)
-    .innerJoin(clients, eq(projects.clientId, clients.id));
-
-  const results = clientId ? await query.where(eq(projects.clientId, clientId)) : await query;
-
-  return c.json({ data: results });
+  const service = c.get('projectService');
+  const query = c.req.valid('query');
+  const projects = await service.getProjects(query);
+  return c.json({ data: projects });
 });
 
 // GET /api/projects/:id - Get single project with client info
 projectsRouter.get('/:id', zValidator('param', idParamSchema), async (c) => {
-  const db = c.get('db');
-  const { id } = c.req.valid('param');
-
-  const [project] = await db
-    .select({
-      clientId: projects.clientId,
-      clientName: clients.name,
-      createdAt: projects.createdAt,
-      description: projects.description,
-      id: projects.id,
-      isActive: projects.isActive,
-      name: projects.name,
-    })
-    .from(projects)
-    .innerJoin(clients, eq(projects.clientId, clients.id))
-    .where(eq(projects.id, id));
-
-  if (!project) {
-    throw new HTTPException(404, { message: 'Project not found' });
-  }
-
+  const service = c.get('projectService');
+  const id = c.req.param('id');
+  const project = await service.getProjectById(id);
   return c.json({ data: project });
 });
 
 // GET /api/projects/:id/skills - Get all skills for a project
 projectsRouter.get('/:id/skills', zValidator('param', idParamSchema), async (c) => {
-  const db = c.get('db');
-  const { id } = c.req.valid('param');
-
-  // Get project-specific skills
-  const projectSpecificSkills = await db
-    .select({
-      averageRating: skills.averageRating,
-      category: skills.category,
-      description: skills.description,
-      downloadCount: skills.downloadCount,
-      githubPath: skills.githubPath,
-      id: skills.id,
-      isCustomized: projectSkills.isCustomized,
-      isGlobal: skills.isGlobal,
-      name: skills.name,
-      parentSkillId: skills.parentSkillId,
-      ratingCount: skills.ratingCount,
-      totalRating: skills.totalRating,
-      uploadedAt: skills.uploadedAt,
-      uploadedBy: skills.uploadedBy,
-      version: skills.version,
-    })
-    .from(projectSkills)
-    .innerJoin(skills, eq(projectSkills.skillId, skills.id))
-    .where(eq(projectSkills.projectId, id));
-
-  // Get all global skills (inherited by all projects)
-  const globalSkills = await db.select().from(skills).where(eq(skills.isGlobal, true));
-
-  // Merge: project-specific skills override global skills with the same name
-  const projectSkillNames = new Set(projectSpecificSkills.map((s) => s.name));
-  const inheritedGlobal = globalSkills
-    .filter((s) => !projectSkillNames.has(s.name))
-    .map((s) => ({ ...s, isCustomized: false }));
-
-  return c.json({
-    data: [...projectSpecificSkills, ...inheritedGlobal],
-  });
+  const service = c.get('projectService');
+  const id = c.req.param('id');
+  const skills = await service.getProjectSkills(id);
+  return c.json({ data: skills });
 });
 
 // POST /api/projects - Create a new project
 projectsRouter.post('/', zValidator('json', insertProjectSchema), async (c) => {
-  const db = c.get('db');
-  const { clientId, description, name } = c.req.valid('json');
-
-  // Verify client exists
-  const [client] = await db.select().from(clients).where(eq(clients.id, clientId));
-  if (!client) {
-    throw new HTTPException(404, { message: 'Client not found' });
-  }
-
-  const [project] = await db.insert(projects).values({ clientId, description, name }).returning();
-
+  const service = c.get('projectService');
+  const data = c.req.valid('json');
+  const project = await service.createProject(data);
   return c.json({ data: project }, 201);
 });
 
