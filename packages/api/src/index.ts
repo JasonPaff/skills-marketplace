@@ -61,9 +61,10 @@ app.use('/api/*', async (c, next) => {
 
 // ─── Routes ───────────────────────────────────────────────────────
 
-app.route('/api/skills', skillsRouter);
-app.route('/api/projects', projectsRouter);
-app.route('/api/clients', clientsRouter);
+const routes = app
+  .route('/api/skills', skillsRouter)
+  .route('/api/projects', projectsRouter)
+  .route('/api/clients', clientsRouter);
 
 // ─── Health Check ─────────────────────────────────────────────────
 
@@ -111,4 +112,5 @@ if (isLocalDev) {
   });
 }
 
+export type AppType = typeof routes;
 export default app;

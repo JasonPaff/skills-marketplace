@@ -1,15 +1,19 @@
+import { SKILL_CATEGORIES } from '@emergent/shared';
 import { relations } from 'drizzle-orm';
 import {
   boolean,
-  decimal,
   integer,
+  pgEnum,
   pgTable,
+  real,
   text,
   timestamp,
   uniqueIndex,
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
+
+export const skillCategoryEnum = pgEnum('skill_category', SKILL_CATEGORIES);
 
 // ─── Clients ──────────────────────────────────────────────────────
 
@@ -48,8 +52,8 @@ export const projectsRelations = relations(projects, ({ many, one }) => ({
 // ─── Skills ───────────────────────────────────────────────────────
 
 export const skills = pgTable('skills', {
-  averageRating: decimal('average_rating', { precision: 3, scale: 2 }).default('0').notNull(),
-  category: varchar('category', { length: 50 }).notNull(),
+  averageRating: real('average_rating').default(0).notNull(),
+  category: skillCategoryEnum('category').notNull(),
   description: varchar('description', { length: 500 }).notNull(),
   downloadCount: integer('download_count').default(0).notNull(),
   githubPath: varchar('github_path', { length: 500 }).notNull(),

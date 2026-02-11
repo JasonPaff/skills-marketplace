@@ -1,3 +1,4 @@
+import type { SkillCategory } from '@emergent/shared';
 import { and, eq, ilike, sql } from 'drizzle-orm';
 
 import type { Database } from '../db/index.js';
@@ -24,7 +25,7 @@ export function createSkillQueries(db: Database) {
     },
 
     async insertSkill(values: {
-      category: string;
+      category: SkillCategory;
       description: string;
       githubPath: string;
       isGlobal: boolean;
@@ -48,7 +49,7 @@ export function createSkillQueries(db: Database) {
     },
 
     async selectSkills(filters?: {
-      category?: string;
+      category?: SkillCategory;
       isGlobal?: boolean;
       search?: string;
     }) {
@@ -71,7 +72,7 @@ export function createSkillQueries(db: Database) {
 
     async updateSkillRating(
       id: string,
-      data: { averageRating: string; ratingCount: number; totalRating: number },
+      data: { averageRating: number; ratingCount: number; totalRating: number },
     ) {
       const [updated] = await db
         .update(skills)

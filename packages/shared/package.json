@@ -14,13 +14,13 @@
   },
   "scripts": {
     "build": "tsup",
+    "clean": "rimraf dist .turbo",
     "dev": "tsup --watch",
-    "lint": "eslint . --cache --cache-location node_modules/.cache/eslint/",
-    "lint:fix": "eslint . --fix --cache --cache-location node_modules/.cache/eslint/",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,css,json,md}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,css,json,md}\"",
-    "typecheck": "tsc --noEmit",
-    "clean": "rimraf dist .turbo"
+    "lint": "eslint . --cache --cache-location node_modules/.cache/eslint/",
+    "lint:fix": "eslint . --fix --cache --cache-location node_modules/.cache/eslint/",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "zod": "^4.3.6"

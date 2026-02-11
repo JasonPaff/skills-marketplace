@@ -1,112 +1,116 @@
-import type {
-  ApiResponse,
-  Client,
-  CreateClient,
-  CreateProject,
-  CreateSkill,
-  ForkSkill,
-  ProjectSkill,
-  ProjectWithClient,
-  RateSkill,
-  Skill,
-  SkillDownloadResponse,
-} from '@emergent/shared';
+import type { AppType } from '@emergent/api';
+import type { CreateClient, CreateProject, CreateSkill, ForkSkill, RateSkill } from '@emergent/shared';
+import { hc } from 'hono/client';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8787';
+const client = hc<AppType>(process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8787');
 
-export function createClient(data: CreateClient) {
-  return fetcher<Client>('/api/clients', {
-    body: JSON.stringify(data),
-    method: 'POST',
-  });
+async function throwIfNotOk(res: Response) {
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ message: res.statusText }));
+    throw new Error((error as { message?: string }).message ?? 'API request failed');
+  }
 }
 
-// ─── Skills ───────────────────────────────────────────────────────
+// ─── Clients ──────────────────────────────────────────────────────
 
-export function createProject(data: CreateProject) {
-  return fetcher<ProjectWithClient>('/api/projects', {
-    body: JSON.stringify(data),
-    method: 'POST',
-  });
+export async function fetchClients() {
+  const res = await client.api.clients.$get();
+  await throwIfNotOk(res);
+  const json = await res.json();
+  return json.data;
 }
 
-export function createSkill(data: CreateSkill) {
-  return fetcher<Skill>('/api/skills', {
-    body: JSON.stringify(data),
-    method: 'POST',
-  });
-}
-
-export function downloadSkill(id: string) {
-  return fetcher<SkillDownloadResponse>(`/api/skills/${id}/download`);
-}
-
-export function fetchClients() {
-  return fetcher<Client[]>('/api/clients');
-}
-
-export function fetchProject(id: string) {
-  return fetcher<ProjectWithClient>(`/api/projects/${id}`);
-}
-
-export function fetchProjects(clientId?: string) {
-  const qs = clientId ? `?clientId=${clientId}` : '';
-  return fetcher<ProjectWithClient[]>(`/api/projects${qs}`);
+export async function createClient(data: CreateClient) {
+  const res = await client.api.clients.$post({ json: data });
+  await throwIfNotOk(res);
+  const json = await res.json();
+  return json.data;
 }
 
 // ─── Projects ─────────────────────────────────────────────────────
 
-export function fetchProjectSkills(projectId: string) {
-  return fetcher<ProjectSkill[]>(`/api/projects/${projectId}/skills`);
+export async function fetchProjects(clientId?: string) {
+  const res = await client.api.projects.$get({
+    query: { clientId: clientId ?? '' },
+  });
+  await throwIfNotOk(res);
+  const json = await res.json();
+  return json.data;
 }
 
-export function fetchSkill(id: string) {
-  return fetcher<Skill>(`/api/skills/${id}`);
+export async function fetchProject(id: string) {
+  const res = await client.api.projects[':id'].$get({ param: { id } });
+  await throwIfNotOk(res);
+  const json = await res.json();
+  return json.data;
 }
 
-export function fetchSkills(params?: {
+export async function fetchProjectSkills(projectId: string) {
+  const res = await client.api.projects[':id'].skills.$get({ param: { id: projectId } });
+  await throwIfNotOk(res);
+  const json = await res.json();
+  return json.data;
+}
+
+export async function createProject(data: CreateProject) {
+  const res = await client.api.projects.$post({ json: data });
+  await throwIfNotOk(res);
+  const json = await res.json();
+  return json.data;
+}
+
+// ─── Skills ───────────────────────────────────────────────────────
+
+export async function fetchSkills(params?: {
   category?: string;
   isGlobal?: boolean;
   projectId?: string;
   search?: string;
 }) {
-  const searchParams = new URLSearchParams();
-  if (params?.search) searchParams.set('search', params.search);
-  if (params?.category) searchParams.set('category', params.category);
-  if (params?.projectId) searchParams.set('projectId', params.projectId);
-  if (params?.isGlobal !== undefined) searchParams.set('isGlobal', String(params.isGlobal));
-
-  const qs = searchParams.toString();
-  return fetcher<Skill[]>(`/api/skills${qs ? `?${qs}` : ''}`);
+  const res = await client.api.skills.$get({
+    query: {
+      category: params?.category ?? '',
+      isGlobal: params?.isGlobal !== undefined ? String(params.isGlobal) : '',
+      projectId: params?.projectId ?? '',
+      search: params?.search ?? '',
+    },
+  });
+  await throwIfNotOk(res);
+  const json = await res.json();
+  return json.data;
 }
 
-export function forkSkill(id: string, data: ForkSkill) {
-  return fetcher<Skill>(`/api/skills/${id}/fork`, {
-    body: JSON.stringify(data),
-    method: 'POST',
-  });
+export async function fetchSkill(id: string) {
+  const res = await client.api.skills[':id'].$get({ param: { id } });
+  await throwIfNotOk(res);
+  const json = await res.json();
+  return json.data;
 }
 
-// ─── Clients ──────────────────────────────────────────────────────
-
-export function rateSkill(id: string, data: RateSkill) {
-  return fetcher<Skill>(`/api/skills/${id}/rate`, {
-    body: JSON.stringify(data),
-    method: 'POST',
-  });
+export async function createSkill(data: CreateSkill) {
+  const res = await client.api.skills.$post({ json: data });
+  await throwIfNotOk(res);
+  const json = await res.json();
+  return json.data;
 }
 
-async function fetcher<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
-    ...init,
-  });
+export async function downloadSkill(id: string) {
+  const res = await client.api.skills[':id'].download.$get({ param: { id } });
+  await throwIfNotOk(res);
+  const json = await res.json();
+  return json.data;
+}
 
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({ message: res.statusText }));
-    throw new Error(error.message ?? 'API request failed');
-  }
+export async function rateSkill(id: string, data: RateSkill) {
+  const res = await client.api.skills[':id'].rate.$post({ param: { id }, json: data });
+  await throwIfNotOk(res);
+  const json = await res.json();
+  return json.data;
+}
 
-  const json = (await res.json()) as ApiResponse<T>;
+export async function forkSkill(id: string, data: ForkSkill) {
+  const res = await client.api.skills[':id'].fork.$post({ param: { id }, json: data });
+  await throwIfNotOk(res);
+  const json = await res.json();
   return json.data;
 }

@@ -1,50 +1,61 @@
-import type {
-  ProjectSkill,
-  ProjectWithClient,
-  Skill,
-  SkillDownloadResponse,
-} from '@emergent/shared';
+import type { AppType } from '@emergent/api';
+import { hc } from 'hono/client';
 
-const API_URL = process.env.EMERGENT_API_URL ?? 'https://skills.emergentsoftware.io';
+const client = hc<AppType>(process.env.EMERGENT_API_URL ?? 'https://skills.emergentsoftware.io');
 
-export function fetchProjects() {
-  return fetcher<ProjectWithClient[]>('/api/projects');
-}
-
-export function fetchProjectSkills(projectId: string) {
-  return fetcher<ProjectSkill[]>(`/api/projects/${projectId}/skills`);
-}
-
-export function fetchSkill(id: string) {
-  return fetcher<Skill>(`/api/skills/${id}`);
-}
-
-export function fetchSkillByName(name: string) {
-  return fetcher<Skill[]>(`/api/skills?search=${encodeURIComponent(name)}`);
-}
-
-export function fetchSkillDownload(id: string) {
-  return fetcher<SkillDownloadResponse>(`/api/skills/${id}/download`);
-}
-
-export function fetchSkills(params?: { project?: string; search?: string }) {
-  const searchParams = new URLSearchParams();
-  if (params?.search) searchParams.set('search', params.search);
-
-  const qs = searchParams.toString();
-  return fetcher<Skill[]>(`/api/skills${qs ? `?${qs}` : ''}`);
-}
-
-async function fetcher<T>(path: string): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`);
-
+async function throwIfNotOk(res: Response) {
   if (!res.ok) {
     const error = (await res.json().catch(() => ({ message: res.statusText }))) as {
       message?: string;
     };
     throw new Error(error.message ?? `API request failed: ${res.status}`);
   }
+}
 
-  const json = (await res.json()) as { data: T };
+export async function fetchProjects() {
+  const res = await client.api.projects.$get({ query: {} });
+  await throwIfNotOk(res);
+  const json = await res.json();
+  return json.data;
+}
+
+export async function fetchProjectSkills(projectId: string) {
+  const res = await client.api.projects[':id'].skills.$get({ param: { id: projectId } });
+  await throwIfNotOk(res);
+  const json = await res.json();
+  return json.data;
+}
+
+export async function fetchSkill(id: string) {
+  const res = await client.api.skills[':id'].$get({ param: { id } });
+  await throwIfNotOk(res);
+  const json = await res.json();
+  return json.data;
+}
+
+export async function fetchSkillByName(name: string) {
+  const res = await client.api.skills.$get({
+    query: { search: name },
+  });
+  await throwIfNotOk(res);
+  const json = await res.json();
+  return json.data;
+}
+
+export async function fetchSkillDownload(id: string) {
+  const res = await client.api.skills[':id'].download.$get({ param: { id } });
+  await throwIfNotOk(res);
+  const json = await res.json();
+  return json.data;
+}
+
+export async function fetchSkills(params?: { project?: string; search?: string }) {
+  const res = await client.api.skills.$get({
+    query: {
+      search: params?.search ?? '',
+    },
+  });
+  await throwIfNotOk(res);
+  const json = await res.json();
   return json.data;
 }

@@ -154,7 +154,7 @@ export function createSkillService(queries: SkillQueries, github: GitHubClient) 
 
       const newTotalRating = skill.totalRating + rating;
       const newRatingCount = skill.ratingCount + 1;
-      const newAverageRating = (newTotalRating / newRatingCount).toFixed(2);
+      const newAverageRating = newTotalRating / newRatingCount;
 
       const updated = await queries.updateSkillRating(id, {
         averageRating: newAverageRating,
