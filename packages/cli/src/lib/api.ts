@@ -2,7 +2,9 @@ import type { AppType } from '@emergent/api';
 
 import { hc } from 'hono/client';
 
-const client = hc<AppType>(process.env.EMERGENT_API_URL ?? 'https://skills.emergentsoftware.io');
+const client = hc<AppType>(
+  process.env.EMERGENT_API_URL ?? 'skills-marketplace-35jfuauvt-jasonpaffs-projects.vercel.app',
+);
 
 export async function fetchProjects() {
   const res = await client.api.projects.$get({ query: { clientId: undefined } });
