@@ -33,12 +33,17 @@ export function createSkillService(queries: SkillQueries, github: GitHubClient) 
 
   return {
     async createSkill(data: CreateSkill) {
-      const { category, description, isGlobal, name, projectId, uploadedBy } = data;
+      const { category, description, files, isGlobal, name, projectId, uploadedBy } = data;
 
       // Determine GitHub path
       const githubPath = await deriveGithubPath(name, isGlobal, projectId);
 
-      // TODO: Commit files to GitHub via github.commitFiles()
+      // Commit files to GitHub (before DB insert so a failure doesn't leave orphaned records)
+      const githubFiles = files.map((file) => ({
+        content: file.content,
+        path: `${githubPath}/${file.path}`,
+      }));
+      await github.commitFiles(githubFiles, `Add skill: ${name}`);
 
       // Insert metadata into database
       const skill = await queries.insertSkill({

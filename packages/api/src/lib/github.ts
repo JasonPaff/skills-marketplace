@@ -38,11 +38,11 @@ export function createGitHubClient(config: GitHubConfig) {
       });
       const latestCommitSha = ref.object.sha;
 
-      // Create blobs for each file
+      // Create blobs for each file (content is already base64-encoded)
       const blobs = await Promise.all(
         files.map(async (file) => {
           const { data: blob } = await octokit.rest.git.createBlob({
-            content: Buffer.from(file.content).toString('base64'),
+            content: file.content,
             encoding: 'base64',
             owner: config.owner,
             repo: config.repo,
@@ -108,14 +108,23 @@ export function createGitHubClient(config: GitHubConfig) {
         return [];
       }
 
-      return contents
-        .filter((item) => item.type === 'file')
-        .map((item) => ({
-          downloadUrl: item.download_url ?? '',
-          name: item.name,
-          path: item.path,
-          size: item.size,
-        }));
+      const files: Array<{ downloadUrl: string; name: string; path: string; size: number }> = [];
+
+      for (const item of contents) {
+        if (item.type === 'file') {
+          files.push({
+            downloadUrl: item.download_url ?? '',
+            name: item.name,
+            path: item.path,
+            size: item.size,
+          });
+        } else if (item.type === 'dir') {
+          const subFiles = await this.listFiles(item.path);
+          files.push(...subFiles);
+        }
+      }
+
+      return files;
     },
   };
 }

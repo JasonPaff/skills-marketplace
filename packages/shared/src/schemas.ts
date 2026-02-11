@@ -34,9 +34,20 @@ export const projectWithClientSchema = projectSchema.extend({
 
 // ─── Skill Schemas ────────────────────────────────────────────────
 
+export const skillFileSchema = z.object({
+  content: z.string().min(1),
+  path: z.string().min(1),
+});
+
 export const createSkillSchema = z.object({
   category: z.enum(SKILL_CATEGORIES),
   description: z.string().min(1).max(500),
+  files: z
+    .array(skillFileSchema)
+    .min(1)
+    .refine((files) => files.some((f) => f.path === 'SKILL.md'), {
+      message: 'A SKILL.md file is required',
+    }),
   isGlobal: z.boolean(),
   name: z
     .string()
@@ -47,7 +58,7 @@ export const createSkillSchema = z.object({
   uploadedBy: z.string().min(1).max(100),
 });
 
-export const skillSchema = createSkillSchema.extend({
+export const skillSchema = createSkillSchema.omit({ files: true }).extend({
   averageRating: z.number().min(0).max(5),
   downloadCount: z.number().int().min(0),
   githubPath: z.string(),
