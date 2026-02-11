@@ -1,4 +1,4 @@
-import { SKILL_CATEGORIES } from '@emergent/shared';
+import { createSkillSchema } from '@emergent/shared';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 
@@ -24,28 +24,7 @@ export const selectProjectSchema = createSelectSchema(projects);
 
 // ─── Skill Schemas ────────────────────────────────────────────────
 
-export const insertSkillSchema = createInsertSchema(skills, {
-  category: z.enum(SKILL_CATEGORIES),
-  description: (schema) => schema.min(1),
-  isGlobal: z.boolean(),
-  name: (schema) =>
-    schema.min(1).regex(/^[a-z0-9-]+$/, 'Skill name must be lowercase alphanumeric with hyphens'),
-  uploadedBy: (schema) => schema.min(1),
-})
-  .omit({
-    averageRating: true,
-    downloadCount: true,
-    githubPath: true,
-    id: true,
-    parentSkillId: true,
-    ratingCount: true,
-    totalRating: true,
-    uploadedAt: true,
-    version: true,
-  })
-  .extend({
-    projectId: z.string().uuid().nullable().optional(),
-  });
+export const insertSkillSchema = createSkillSchema;
 
 export const selectSkillSchema = createSelectSchema(skills);
 
