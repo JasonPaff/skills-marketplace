@@ -3,12 +3,23 @@ import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 
 import { clients, projects, projectSkills, skills } from './schema.js';
 
+const omitClientInsertFields = { createdAt: true, id: true } as const;
+const omitProjectInsertFields = {
+  createdAt: true,
+  id: true,
+  isActive: true,
+} as const;
+const omitProjectSkillInsertFields = {
+  addedAt: true,
+  id: true,
+} as const;
+
 // ─── Client Schemas ───────────────────────────────────────────────
 
 export const insertClientSchema = createInsertSchema(clients, {
   description: (schema) => schema.max(1000),
   name: (schema) => schema.min(1),
-}).omit({ createdAt: true, id: true });
+}).omit(omitClientInsertFields as never);
 
 export const selectClientSchema = createSelectSchema(clients);
 
@@ -17,7 +28,7 @@ export const selectClientSchema = createSelectSchema(clients);
 export const insertProjectSchema = createInsertSchema(projects, {
   description: (schema) => schema.max(1000),
   name: (schema) => schema.min(1),
-}).omit({ createdAt: true, id: true, isActive: true });
+}).omit(omitProjectInsertFields as never);
 
 export const selectProjectSchema = createSelectSchema(projects);
 
@@ -29,9 +40,7 @@ export const selectSkillSchema = createSelectSchema(skills);
 
 // ─── Project Skills Schemas ───────────────────────────────────────
 
-export const insertProjectSkillSchema = createInsertSchema(projectSkills).omit({
-  addedAt: true,
-  id: true,
-});
+export const insertProjectSkillSchema =
+  createInsertSchema(projectSkills).omit(omitProjectSkillInsertFields as never);
 
 export const selectProjectSkillSchema = createSelectSchema(projectSkills);
