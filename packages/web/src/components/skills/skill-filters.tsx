@@ -17,10 +17,7 @@ export function SkillFilters() {
         type="text"
         value={search}
       />
-      <Select
-        onChange={(e) => setParams({ category: e.target.value || null })}
-        value={category}
-      >
+      <Select onChange={(e) => setParams({ category: e.target.value || null })} value={category}>
         <option value="">All Categories</option>
         {SKILL_CATEGORIES.map((cat) => (
           <option key={cat} value={cat}>

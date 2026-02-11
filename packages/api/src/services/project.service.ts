@@ -23,7 +23,10 @@ export function createProjectService(db: Database) {
         throw new HTTPException(404, { message: 'Client not found' });
       }
 
-      const [project] = await db.insert(projects).values({ clientId, description, name }).returning();
+      const [project] = await db
+        .insert(projects)
+        .values({ clientId, description, name })
+        .returning();
       return project;
     },
 
@@ -63,7 +66,9 @@ export function createProjectService(db: Database) {
         .from(projects)
         .innerJoin(clients, eq(projects.clientId, clients.id));
 
-      const results = query?.clientId ? await q.where(eq(projects.clientId, query.clientId)) : await q;
+      const results = query?.clientId
+        ? await q.where(eq(projects.clientId, query.clientId))
+        : await q;
 
       return results;
     },

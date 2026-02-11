@@ -20,7 +20,7 @@ export const queryKeys = createQueryKeys('app', {
       detail: (id: string) => ({
         queryKey: [id],
       }),
-      list: (filters?: { category?: string; search?: string; }) => ({
+      list: (filters?: { category?: string; search?: string }) => ({
         queryKey: [filters],
       }),
     },

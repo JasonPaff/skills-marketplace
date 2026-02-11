@@ -6,7 +6,7 @@ import { fetchSkills } from '@/lib/api';
 
 import { queryKeys } from './keys';
 
-export function useSkills(filters?: { category?: string; search?: string; }) {
+export function useSkills(filters?: { category?: string; search?: string }) {
   return useQuery({
     ...queryKeys.skills._ctx.list(filters),
     queryFn: () =>

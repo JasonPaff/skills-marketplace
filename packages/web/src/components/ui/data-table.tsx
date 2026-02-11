@@ -62,9 +62,9 @@ export function DataTable<TData>({ className, columns, data }: DataTableProps<TD
           {table.getRowModel().rows.map((row) => (
             <tr
               className="
-              border-b border-gray-100
-              last:border-0
-            "
+                border-b border-gray-100
+                last:border-0
+              "
               key={row.id}
             >
               {row.getVisibleCells().map((cell) => (
@@ -86,8 +86,8 @@ export function DataTable<TData>({ className, columns, data }: DataTableProps<TD
       {table.getPageCount() > 1 && (
         <div
           className="
-          flex items-center justify-between border-t border-gray-200 px-4 py-3
-        "
+            flex items-center justify-between border-t border-gray-200 px-4 py-3
+          "
         >
           <button
             className="

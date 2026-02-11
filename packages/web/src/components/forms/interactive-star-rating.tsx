@@ -30,10 +30,7 @@ export function InteractiveStarRating({ onChange, value }: InteractiveStarRating
           onMouseLeave={() => setHovered(0)}
           type="button"
         >
-          <Star
-            className="size-6"
-            fill={star <= (hovered || value) ? 'currentColor' : 'none'}
-          />
+          <Star className="size-6" fill={star <= (hovered || value) ? 'currentColor' : 'none'} />
         </button>
       ))}
       {value > 0 && <span className="ml-2 text-sm text-gray-500">{value}/5</span>}

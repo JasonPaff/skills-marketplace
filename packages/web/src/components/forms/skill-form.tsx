@@ -75,9 +75,7 @@ export function SkillForm() {
                 className="w-full"
                 id="name"
                 onChange={(e) =>
-                  field.handleChange(
-                    e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''),
-                  )
+                  field.handleChange(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))
                 }
                 placeholder="my-awesome-skill"
                 type="text"
@@ -184,9 +182,11 @@ export function SkillForm() {
         </form.Field>
 
         {errorMsg && (
-          <div className="
+          <div
+            className="
             rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700
-          ">
+          "
+          >
             {errorMsg}
           </div>
         )}

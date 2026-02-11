@@ -5,11 +5,13 @@ import { SkillsList } from '@/components/skills/skills-list';
 
 export default function Home() {
   return (
-    <main className="
+    <main
+      className="
       mx-auto max-w-7xl px-4 py-8
       sm:px-6
       lg:px-8
-    ">
+    "
+    >
       <PageHeader
         action={{ href: '/skills/new', label: 'Upload Skill' }}
         description="Discover, share, and install Claude Code &amp; Copilot skills across the organization."

@@ -12,9 +12,13 @@ export function StarRating({ rating, showLabel = true }: StarRatingProps) {
     <span className="inline-flex items-center gap-0.5 text-sm">
       {[1, 2, 3, 4, 5].map((star) => (
         <Star
-          className={star <= Math.round(rating) ? 'size-4 text-amber-400' : `
+          className={
+            star <= Math.round(rating)
+              ? 'size-4 text-amber-400'
+              : `
             size-4 text-gray-300
-          `}
+          `
+          }
           fill={star <= Math.round(rating) ? 'currentColor' : 'none'}
           key={star}
         />

@@ -22,25 +22,32 @@ export function SkillsList() {
       {error && <ErrorAlert error={error as Error} message="Failed to load skills" />}
 
       {skills && skills.length === 0 && (
-        <div className="
+        <div
+          className="
           rounded-lg border border-dashed border-gray-300 p-12 text-center
-        ">
+        "
+        >
           <p className="text-gray-500">No skills found.</p>
-          <Link className="
+          <Link
+            className="
             mt-2 inline-block text-sm text-blue-600
             hover:underline
-          " href="/skills/new">
+          "
+            href="/skills/new"
+          >
             Upload the first skill
           </Link>
         </div>
       )}
 
       {skills && skills.length > 0 && (
-        <div className="
+        <div
+          className="
           grid gap-4
           sm:grid-cols-2
           lg:grid-cols-3
-        ">
+        "
+        >
           {skills.map((skill) => (
             <SkillCard key={skill.id} skill={skill} />
           ))}

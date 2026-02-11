@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 interface PageHeaderProps {
-  action?: { href: string; label: string; };
+  action?: { href: string; label: string };
   description?: string;
   title: string;
 }

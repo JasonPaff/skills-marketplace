@@ -19,10 +19,14 @@ export function SkillCard({ skill }: SkillCardProps) {
     <Link href={`/skills/${skill.id}`}>
       <Card className="group" interactive padding="md">
         <div className="mb-2 flex items-start justify-between">
-          <h3 className="
+          <h3
+            className="
             font-semibold text-gray-900
             group-hover:text-blue-600
-          ">{skill.name}</h3>
+          "
+          >
+            {skill.name}
+          </h3>
           <span
             className={`
               rounded-full px-2 py-0.5 text-xs font-medium

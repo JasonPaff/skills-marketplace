@@ -14,9 +14,7 @@ export function SkillStats({ skill }: SkillStatsProps) {
         <div className="text-xs text-gray-500">Downloads</div>
       </div>
       <div className="text-center">
-        <div className="text-2xl font-bold text-gray-900">
-          {formatRating(skill.averageRating)}
-        </div>
+        <div className="text-2xl font-bold text-gray-900">{formatRating(skill.averageRating)}</div>
         <div className="text-xs text-gray-500">Avg Rating ({skill.ratingCount} reviews)</div>
       </div>
       <div className="text-center">

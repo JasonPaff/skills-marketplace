@@ -8,7 +8,7 @@ import { RadioGroup as BaseRadioGroup } from '@base-ui/react/radio-group';
 import { cn } from '@/lib/utils/cn';
 
 type RadioGroupProps = Omit<ComponentProps<typeof BaseRadioGroup>, 'children'> & {
-  options: { label: string; value: string; }[];
+  options: { label: string; value: string }[];
 };
 
 export function RadioGroup({ className, options, ...props }: RadioGroupProps) {
