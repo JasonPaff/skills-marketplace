@@ -4,6 +4,9 @@
 
 set -euo pipefail
 
+# Navigate to the repo root (Vercel may cd into the project's root directory)
+cd "$(git rev-parse --show-toplevel)"
+
 PROJECT="$1"
 
 if [[ "$PROJECT" != "web" && "$PROJECT" != "api" ]]; then
