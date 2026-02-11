@@ -1,0 +1,19 @@
+# Step 1: Feature Request Refinement
+
+## Metadata
+- **Timestamp**: 2026-02-11
+- **Status**: Complete
+- **Duration**: ~13s
+- **Agent**: general-purpose
+
+## Original Request (284 words)
+Simplify the "Upload New Skill" form and its full stack to MVP requirements. The form in packages/web/src/components/forms/skill-form.tsx currently collects name, description, category, scope (isGlobal), projectId, email (uploadedBy), and files. Remove category, scope/isGlobal, projectId, and uploadedBy from the entire stack...
+
+## Refined Request (345 words)
+Simplify the "Upload New Skill" form and its entire full-stack implementation down to MVP requirements by removing the category, scope/isGlobal, projectId, and uploadedBy fields from every layer of the monorepo, leaving only skill name (required, lowercase alphanumeric plus hyphens), description (required, max 500 characters), and skill files (required, must include SKILL.md). In the database layer, drop the category pgEnum column, is_global column, and uploaded_by column from the skills table in packages/api/src/db/schema.ts, then run drizzle-kit generate and drizzle-kit migrate against Neon Postgres to produce and apply the Drizzle ORM 0.45 migration. Update the shared Zod v4.3.6 schemas in packages/shared/src/schemas.ts — specifically createSkillSchema, skillSchema, and skillsQuerySchema — to remove the eliminated fields, and delete SKILL_CATEGORIES and SKILL_SCOPES from packages/shared/src/constants.ts if they are no longer referenced. Propagate the removals through the API service layer in packages/api/src/services/skill.service.ts (the createSkill method and deriveGithubPath, which should now unconditionally route all skills to skills/global/{name}), packages/api/src/queries/skill.queries.ts (the insertSkill type signature and any selectSkills filters referencing category or scope), packages/api/src/db/validation.ts, and packages/api/src/db/seed.ts. On the frontend, refactor packages/web/src/components/forms/skill-form.tsx to use TanStack Form v1.28.0 with Zod field-level validation wired through the @tanstack/zod-form-adapter, applying onBlur plus onSubmit validation timing so errors surface as users interact rather than only on submission. Add an error boolean prop to the Input component in packages/web/src/components/ui/input.tsx and the Textarea component in packages/web/src/components/ui/textarea.tsx that applies a red border and red focus ring via class-variance-authority variants when true. Enhance packages/web/src/components/forms/form-field.tsx with proper accessibility attributes — aria-describedby linking each input to its error or hint message element, aria-invalid when validation errors are present, and aria-required on required fields — passed to child inputs through cloneElement or a render prop pattern, with inline error messages rendered directly beneath each field. Remove all references to the deleted fields from the remaining affected frontend files: packages/web/src/components/skills/skill-card.tsx, skill-filters.tsx, skill-header.tsx, skill-metadata.tsx, packages/web/src/lib/utils/category-colors.ts, packages/web/src/lib/api.ts (the fetchSkills query parameters), packages/web/src/lib/query/use-skills.ts, and packages/web/src/lib/search-params.ts which uses nuqs for search param state. No backward compatibility is required since this is a pre-production application with no users; the goal is a clean, minimal vertical slice with proper validation UX and accessibility throughout.
+
+## Validation
+- **Length**: Original ~284 words → Refined ~345 words (1.2x expansion) - within acceptable range
+- **Format**: Single paragraph, no headers or sections
+- **Scope**: Core intent preserved, no feature creep
+- **Technical Context**: Added Drizzle ORM version, Neon Postgres, Zod v4.3.6, CVA variants detail
