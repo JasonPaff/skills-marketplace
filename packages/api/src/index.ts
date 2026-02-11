@@ -5,7 +5,11 @@ if (process.env.NODE_ENV !== 'production') {
 
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { HTTPException } from 'hono/http-exception';
 import { logger } from 'hono/logger';
+
+import type { Database } from './db/index.js';
+import type { GitHubClient } from './lib/github.js';
 
 import { createDb } from './db/index.js';
 import { createGitHubClient } from './lib/github.js';
@@ -19,6 +23,10 @@ type Env = {
     GITHUB_OWNER: string;
     GITHUB_REPO: string;
     GITHUB_TOKEN: string;
+  };
+  Variables: {
+    db: Database;
+    github: GitHubClient;
   };
 };
 
@@ -45,8 +53,8 @@ app.use('/api/*', async (c, next) => {
     token: c.env.GITHUB_TOKEN ?? process.env.GITHUB_TOKEN!,
   });
 
-  c.set('db' as never, db);
-  c.set('github' as never, github);
+  c.set('db', db);
+  c.set('github', github);
   await next();
 });
 
@@ -64,7 +72,21 @@ app.get('/api/health', (c) => {
 
 // ─── Global Error Handler ─────────────────────────────────────────
 
+app.notFound((c) => {
+  return c.json(
+    {
+      error: 'Not Found',
+      message: 'Route not found',
+      statusCode: 404,
+    },
+    404,
+  );
+});
+
 app.onError((err, c) => {
+  if (err instanceof HTTPException) {
+    return err.getResponse();
+  }
   console.error('Unhandled error:', err);
   return c.json(
     {

@@ -1,17 +1,22 @@
-import { createProjectSchema, projectsQuerySchema } from '@emergent/shared';
+import { projectsQuerySchema } from '@emergent/shared';
 import { zValidator } from '@hono/zod-validator';
 import { eq } from 'drizzle-orm';
 import { Hono } from 'hono';
+import { HTTPException } from 'hono/http-exception';
+import { z } from 'zod';
 
 import type { Database } from '../db/index.js';
 
 import { clients, projects, projectSkills, skills } from '../db/schema.js';
+import { insertProjectSchema } from '../db/validation.js';
 
 type Env = {
   Variables: {
     db: Database;
   };
 };
+
+const idParamSchema = z.object({ id: z.string().uuid() });
 
 const projectsRouter = new Hono<Env>();
 
@@ -39,9 +44,9 @@ projectsRouter.get('/', zValidator('query', projectsQuerySchema), async (c) => {
 });
 
 // GET /api/projects/:id - Get single project with client info
-projectsRouter.get('/:id', async (c) => {
+projectsRouter.get('/:id', zValidator('param', idParamSchema), async (c) => {
   const db = c.get('db');
-  const id = c.req.param('id');
+  const { id } = c.req.valid('param');
 
   const [project] = await db
     .select({
@@ -58,16 +63,16 @@ projectsRouter.get('/:id', async (c) => {
     .where(eq(projects.id, id));
 
   if (!project) {
-    return c.json({ error: 'Not found', message: 'Project not found', statusCode: 404 }, 404);
+    throw new HTTPException(404, { message: 'Project not found' });
   }
 
   return c.json({ data: project });
 });
 
 // GET /api/projects/:id/skills - Get all skills for a project
-projectsRouter.get('/:id/skills', async (c) => {
+projectsRouter.get('/:id/skills', zValidator('param', idParamSchema), async (c) => {
   const db = c.get('db');
-  const id = c.req.param('id');
+  const { id } = c.req.valid('param');
 
   // Get project-specific skills
   const projectSpecificSkills = await db
@@ -107,14 +112,14 @@ projectsRouter.get('/:id/skills', async (c) => {
 });
 
 // POST /api/projects - Create a new project
-projectsRouter.post('/', zValidator('json', createProjectSchema), async (c) => {
+projectsRouter.post('/', zValidator('json', insertProjectSchema), async (c) => {
   const db = c.get('db');
   const { clientId, description, name } = c.req.valid('json');
 
   // Verify client exists
   const [client] = await db.select().from(clients).where(eq(clients.id, clientId));
   if (!client) {
-    return c.json({ error: 'Not found', message: 'Client not found', statusCode: 404 }, 404);
+    throw new HTTPException(404, { message: 'Client not found' });
   }
 
   const [project] = await db.insert(projects).values({ clientId, description, name }).returning();

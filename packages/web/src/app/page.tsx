@@ -171,11 +171,7 @@ export default function Home() {
                 <StarRating rating={Number(skill.averageRating)} />
                 <span>{skill.downloadCount} downloads</span>
               </div>
-              <div
-                className="
-                mt-2 flex items-center gap-2 text-xs text-gray-400
-              "
-              >
+              <div className="mt-2 flex items-center gap-2 text-xs text-gray-400">
                 {skill.isGlobal ? (
                   <span
                     className="
@@ -208,13 +204,7 @@ function StarRating({ rating }: { rating: number }) {
     <span className="inline-flex items-center gap-0.5 text-sm">
       {[1, 2, 3, 4, 5].map((star) => (
         <span
-          className={
-            star <= Math.round(rating)
-              ? 'text-amber-400'
-              : `
-            text-gray-300
-          `
-          }
+          className={star <= Math.round(rating) ? 'text-amber-400' : `text-gray-300`}
           key={star}
         >
           &#9733;

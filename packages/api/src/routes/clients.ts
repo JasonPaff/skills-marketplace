@@ -1,10 +1,10 @@
-import { createClientSchema } from '@emergent/shared';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 
 import type { Database } from '../db/index.js';
 
 import { clients } from '../db/schema.js';
+import { insertClientSchema } from '../db/validation.js';
 
 type Env = {
   Variables: {
@@ -22,7 +22,7 @@ clientsRouter.get('/', async (c) => {
 });
 
 // POST /api/clients - Create a new client
-clientsRouter.post('/', zValidator('json', createClientSchema), async (c) => {
+clientsRouter.post('/', zValidator('json', insertClientSchema), async (c) => {
   const db = c.get('db');
   const { description, name } = c.req.valid('json');
 
