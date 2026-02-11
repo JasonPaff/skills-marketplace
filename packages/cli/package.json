@@ -17,6 +17,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@clack/prompts": "^0.10.0",
     "@emergent/api": "workspace:*",
     "@emergent/shared": "workspace:*",
     "hono": "^4.7.0",
