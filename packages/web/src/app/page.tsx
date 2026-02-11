@@ -16,7 +16,7 @@ export default function Home() {
       <PageHeader
         action={{ href: $path({ route: '/skills/new' }), label: 'Upload Skill' }}
         description="Discover, share, and install Claude Code &amp; Copilot skills across the organization."
-        title="Skills Marketplace"
+        title="Detergent Skills Marketplace"
       />
       <Suspense fallback={<div className="py-12 text-center text-gray-500">Loading skills...</div>}>
         <SkillsList />
