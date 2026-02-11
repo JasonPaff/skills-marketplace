@@ -1,24 +1,16 @@
 import type { AppType } from '@emergent/api';
-import type { CreateClient, CreateProject, CreateSkill, ForkSkill, RateSkill } from '@emergent/shared';
+import type {
+  CreateClient,
+  CreateProject,
+  CreateSkill,
+  ForkSkill,
+  RateSkill,
+  SkillCategory,
+} from '@emergent/shared';
+
 import { hc } from 'hono/client';
 
 const client = hc<AppType>(process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8787');
-
-async function throwIfNotOk(res: Response) {
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({ message: res.statusText }));
-    throw new Error((error as { message?: string }).message ?? 'API request failed');
-  }
-}
-
-// ─── Clients ──────────────────────────────────────────────────────
-
-export async function fetchClients() {
-  const res = await client.api.clients.$get();
-  await throwIfNotOk(res);
-  const json = await res.json();
-  return json.data;
-}
 
 export async function createClient(data: CreateClient) {
   const res = await client.api.clients.$post({ json: data });
@@ -27,61 +19,10 @@ export async function createClient(data: CreateClient) {
   return json.data;
 }
 
-// ─── Projects ─────────────────────────────────────────────────────
-
-export async function fetchProjects(clientId?: string) {
-  const res = await client.api.projects.$get({
-    query: { clientId: clientId ?? '' },
-  });
-  await throwIfNotOk(res);
-  const json = await res.json();
-  return json.data;
-}
-
-export async function fetchProject(id: string) {
-  const res = await client.api.projects[':id'].$get({ param: { id } });
-  await throwIfNotOk(res);
-  const json = await res.json();
-  return json.data;
-}
-
-export async function fetchProjectSkills(projectId: string) {
-  const res = await client.api.projects[':id'].skills.$get({ param: { id: projectId } });
-  await throwIfNotOk(res);
-  const json = await res.json();
-  return json.data;
-}
+// ─── Clients ──────────────────────────────────────────────────────
 
 export async function createProject(data: CreateProject) {
   const res = await client.api.projects.$post({ json: data });
-  await throwIfNotOk(res);
-  const json = await res.json();
-  return json.data;
-}
-
-// ─── Skills ───────────────────────────────────────────────────────
-
-export async function fetchSkills(params?: {
-  category?: string;
-  isGlobal?: boolean;
-  projectId?: string;
-  search?: string;
-}) {
-  const res = await client.api.skills.$get({
-    query: {
-      category: params?.category ?? '',
-      isGlobal: params?.isGlobal !== undefined ? String(params.isGlobal) : '',
-      projectId: params?.projectId ?? '',
-      search: params?.search ?? '',
-    },
-  });
-  await throwIfNotOk(res);
-  const json = await res.json();
-  return json.data;
-}
-
-export async function fetchSkill(id: string) {
-  const res = await client.api.skills[':id'].$get({ param: { id } });
   await throwIfNotOk(res);
   const json = await res.json();
   return json.data;
@@ -94,6 +35,8 @@ export async function createSkill(data: CreateSkill) {
   return json.data;
 }
 
+// ─── Projects ─────────────────────────────────────────────────────
+
 export async function downloadSkill(id: string) {
   const res = await client.api.skills[':id'].download.$get({ param: { id } });
   await throwIfNotOk(res);
@@ -101,16 +44,81 @@ export async function downloadSkill(id: string) {
   return json.data;
 }
 
-export async function rateSkill(id: string, data: RateSkill) {
-  const res = await client.api.skills[':id'].rate.$post({ param: { id }, json: data });
+export async function fetchClients() {
+  const res = await client.api.clients.$get();
+  await throwIfNotOk(res);
+  const json = await res.json();
+  return json.data;
+}
+
+export async function fetchProject(id: string) {
+  const res = await client.api.projects[':id'].$get({ param: { id } });
+  await throwIfNotOk(res);
+  const json = await res.json();
+  return json.data;
+}
+
+export async function fetchProjects(clientId?: string) {
+  const res = await client.api.projects.$get({
+    query: { clientId },
+  });
+  await throwIfNotOk(res);
+  const json = await res.json();
+  return json.data;
+}
+
+// ─── Skills ───────────────────────────────────────────────────────
+
+export async function fetchProjectSkills(projectId: string) {
+  const res = await client.api.projects[':id'].skills.$get({ param: { id: projectId } });
+  await throwIfNotOk(res);
+  const json = await res.json();
+  return json.data;
+}
+
+export async function fetchSkill(id: string) {
+  const res = await client.api.skills[':id'].$get({ param: { id } });
+  await throwIfNotOk(res);
+  const json = await res.json();
+  return json.data;
+}
+
+export async function fetchSkills(params?: {
+  category?: SkillCategory;
+  isGlobal?: boolean;
+  projectId?: string;
+  search?: string;
+}) {
+  const res = await client.api.skills.$get({
+    query: {
+      category: params?.category,
+      isGlobal: params?.isGlobal !== undefined ? String(params.isGlobal) : undefined,
+      projectId: params?.projectId,
+      search: params?.search,
+    },
+  });
   await throwIfNotOk(res);
   const json = await res.json();
   return json.data;
 }
 
 export async function forkSkill(id: string, data: ForkSkill) {
-  const res = await client.api.skills[':id'].fork.$post({ param: { id }, json: data });
+  const res = await client.api.skills[':id'].fork.$post({ json: data, param: { id } });
   await throwIfNotOk(res);
   const json = await res.json();
   return json.data;
+}
+
+export async function rateSkill(id: string, data: RateSkill) {
+  const res = await client.api.skills[':id'].rate.$post({ json: data, param: { id } });
+  await throwIfNotOk(res);
+  const json = await res.json();
+  return json.data;
+}
+
+async function throwIfNotOk(res: Response) {
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ message: res.statusText }));
+    throw new Error((error as { message?: string }).message ?? 'API request failed');
+  }
 }

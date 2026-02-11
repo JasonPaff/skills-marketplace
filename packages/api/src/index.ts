@@ -61,6 +61,7 @@ app.use('/api/*', async (c, next) => {
 
 // ─── Routes ───────────────────────────────────────────────────────
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- used only for AppType export
 const routes = app
   .route('/api/skills', skillsRouter)
   .route('/api/projects', projectsRouter)

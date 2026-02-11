@@ -1,4 +1,4 @@
-import type { forkSkillSchema, skillsQuerySchema } from '@emergent/shared';
+import type { CreateSkill, ForkSkill, skillsQuerySchema } from '@emergent/shared';
 import type { z } from 'zod';
 
 import { HTTPException } from 'hono/http-exception';
@@ -6,11 +6,7 @@ import { HTTPException } from 'hono/http-exception';
 import type { GitHubClient } from '../lib/github.js';
 import type { SkillQueries } from '../queries/index.js';
 
-import { insertSkillSchema } from '../db/validation.js';
-
 export type SkillService = ReturnType<typeof createSkillService>;
-type CreateSkillData = z.infer<typeof insertSkillSchema>;
-type ForkSkillData = z.infer<typeof forkSkillSchema>;
 
 type SkillsQuery = z.infer<typeof skillsQuerySchema>;
 
@@ -36,7 +32,7 @@ export function createSkillService(queries: SkillQueries, github: GitHubClient) 
   }
 
   return {
-    async createSkill(data: CreateSkillData) {
+    async createSkill(data: CreateSkill) {
       const { category, description, isGlobal, name, projectId, uploadedBy } = data;
 
       // Determine GitHub path
@@ -86,7 +82,7 @@ export function createSkillService(queries: SkillQueries, github: GitHubClient) 
       };
     },
 
-    async forkSkill(id: string, data: ForkSkillData) {
+    async forkSkill(id: string, data: ForkSkill) {
       const { newName, projectId } = data;
 
       // Get original skill

@@ -1,19 +1,11 @@
 import type { AppType } from '@emergent/api';
+
 import { hc } from 'hono/client';
 
 const client = hc<AppType>(process.env.EMERGENT_API_URL ?? 'https://skills.emergentsoftware.io');
 
-async function throwIfNotOk(res: Response) {
-  if (!res.ok) {
-    const error = (await res.json().catch(() => ({ message: res.statusText }))) as {
-      message?: string;
-    };
-    throw new Error(error.message ?? `API request failed: ${res.status}`);
-  }
-}
-
 export async function fetchProjects() {
-  const res = await client.api.projects.$get({ query: {} });
+  const res = await client.api.projects.$get({ query: { clientId: undefined } });
   await throwIfNotOk(res);
   const json = await res.json();
   return json.data;
@@ -52,10 +44,19 @@ export async function fetchSkillDownload(id: string) {
 export async function fetchSkills(params?: { project?: string; search?: string }) {
   const res = await client.api.skills.$get({
     query: {
-      search: params?.search ?? '',
+      search: params?.search,
     },
   });
   await throwIfNotOk(res);
   const json = await res.json();
   return json.data;
+}
+
+async function throwIfNotOk(res: Response) {
+  if (!res.ok) {
+    const error = (await res.json().catch(() => ({ message: res.statusText }))) as {
+      message?: string;
+    };
+    throw new Error(error.message ?? `API request failed: ${res.status}`);
+  }
 }

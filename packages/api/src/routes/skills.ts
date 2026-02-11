@@ -1,11 +1,9 @@
-import { forkSkillSchema, rateSkillSchema, skillsQuerySchema } from '@emergent/shared';
+import { createSkillSchema, forkSkillSchema, rateSkillSchema, skillsQuerySchema } from '@emergent/shared';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { z } from 'zod';
 
 import type { AppEnv } from '../types/env.js';
-
-import { insertSkillSchema } from '../db/validation.js';
 
 const idParamSchema = z.object({ id: z.string().uuid() });
 
@@ -25,7 +23,7 @@ const skillsRouter = new Hono<AppEnv>()
     return c.json({ data: skill });
   })
   // POST /api/skills - Create a new skill
-  .post('/', zValidator('json', insertSkillSchema), async (c) => {
+  .post('/', zValidator('json', createSkillSchema), async (c) => {
     const service = c.get('skillService');
     const data = c.req.valid('json');
     const skill = await service.createSkill(data);

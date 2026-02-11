@@ -1,18 +1,14 @@
-import type { z } from 'zod';
+import type { CreateProject } from '@emergent/shared';
 
 import { HTTPException } from 'hono/http-exception';
 
 import type { ProjectQueries } from '../queries/index.js';
 
-import { insertProjectSchema } from '../db/validation.js';
-
 export type ProjectService = ReturnType<typeof createProjectService>;
-
-type CreateProjectData = z.infer<typeof insertProjectSchema>;
 
 export function createProjectService(queries: ProjectQueries) {
   return {
-    async createProject(data: CreateProjectData) {
+    async createProject(data: CreateProject) {
       const { clientId, description, name } = data;
 
       // Verify client exists

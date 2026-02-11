@@ -1,4 +1,5 @@
 import type { SkillCategory } from '@emergent/shared';
+
 import { and, eq, ilike, sql } from 'drizzle-orm';
 
 import type { Database } from '../db/index.js';
