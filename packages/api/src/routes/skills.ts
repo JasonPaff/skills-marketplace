@@ -1,8 +1,4 @@
-import {
-  forkSkillSchema,
-  rateSkillSchema,
-  skillsQuerySchema,
-} from '@emergent/shared';
+import { forkSkillSchema, rateSkillSchema, skillsQuerySchema } from '@emergent/shared';
 import { zValidator } from '@hono/zod-validator';
 import { and, eq, ilike, sql } from 'drizzle-orm';
 import { Hono } from 'hono';

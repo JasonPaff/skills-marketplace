@@ -40,10 +40,7 @@ app.use(
   cors({
     allowHeaders: ['Content-Type', 'Authorization'],
     allowMethods: ['GET', 'POST', 'PUT', 'DELETE'],
-    origin: [
-      'http://localhost:3000',
-      ...(process.env.WEB_URL ? [process.env.WEB_URL] : []),
-    ],
+    origin: ['http://localhost:3000', ...(process.env.WEB_URL ? [process.env.WEB_URL] : [])],
   }),
 );
 

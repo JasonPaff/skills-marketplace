@@ -1,6 +1,5 @@
 import { createSkillSchema } from '@emergent/shared';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
-import { z } from 'zod';
 
 import { clients, projects, projectSkills, skills } from './schema.js';
 
