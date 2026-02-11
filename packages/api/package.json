@@ -15,6 +15,7 @@
     "lint:fix": "eslint . --fix --cache --cache-location node_modules/.cache/eslint/",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,css,json,md}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,css,json,md}\"",
+    "typecheck": "tsc --noEmit",
     "clean": "rimraf dist .turbo"
   },
   "dependencies": {

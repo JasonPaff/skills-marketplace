@@ -8,6 +8,7 @@
     "lint:fix": "turbo lint:fix",
     "format": "turbo format",
     "format:check": "turbo format:check",
+    "typecheck": "turbo typecheck",
     "clean": "turbo clean",
     "db:generate": "turbo db:generate --filter=@emergent/api",
     "db:migrate": "turbo db:migrate --filter=@emergent/api",

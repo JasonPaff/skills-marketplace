@@ -166,13 +166,7 @@ export default function SkillDetailPage({ params }: { params: Promise<{ id: stri
               <button
                 className={`
                   text-2xl transition
-                  ${
-                    star <= (hoveredRating || selectedRating)
-                      ? 'text-amber-400'
-                      : `
-                    text-gray-300
-                  `
-                  }
+                  ${star <= (hoveredRating || selectedRating) ? 'text-amber-400' : `text-gray-300`}
                   hover:scale-110
                 `}
                 key={star}
@@ -216,7 +210,13 @@ export default function SkillDetailPage({ params }: { params: Promise<{ id: stri
             <p
               className={`
                 mt-2 text-sm
-                ${ratingMessage.startsWith('Failed') ? `text-red-600` : `text-green-600`}
+                ${
+                  ratingMessage.startsWith('Failed')
+                    ? `text-red-600`
+                    : `
+                  text-green-600
+                `
+                }
               `}
             >
               {ratingMessage}

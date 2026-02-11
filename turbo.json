@@ -9,6 +9,10 @@
       "cache": false,
       "persistent": true
     },
+    "typecheck": {
+      "dependsOn": ["^build"],
+      "inputs": ["src/**/*.{ts,tsx}", "tsconfig.json"]
+    },
     "lint": {
       "dependsOn": ["^build"],
       "inputs": ["src/**/*.{ts,tsx,js,jsx}", "eslint.config.*"]

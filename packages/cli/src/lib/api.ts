@@ -39,7 +39,9 @@ async function fetcher<T>(path: string): Promise<T> {
   const res = await fetch(`${API_URL}${path}`);
 
   if (!res.ok) {
-    const error = await res.json().catch(() => ({ message: res.statusText }));
+    const error = (await res.json().catch(() => ({ message: res.statusText }))) as {
+      message?: string;
+    };
     throw new Error(error.message ?? `API request failed: ${res.status}`);
   }
 
