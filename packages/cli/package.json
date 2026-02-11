@@ -1,0 +1,25 @@
+{
+  "name": "@emergent/skills",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "emergent-skills": "./dist/index.js"
+  },
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "build": "tsup",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@emergent/shared": "workspace:*",
+    "chalk": "^5.6.0",
+    "commander": "^14.0.0",
+    "ora": "^9.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsup": "^8.5.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.0"
+  }
+}
