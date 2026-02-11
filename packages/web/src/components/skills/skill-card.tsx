@@ -2,6 +2,7 @@
 
 import type { Skill } from '@emergent/shared';
 
+import { $path } from 'next-typesafe-url';
 import Link from 'next/link';
 
 import { Badge } from '@/components/ui/badge';
@@ -16,14 +17,14 @@ interface SkillCardProps {
 
 export function SkillCard({ skill }: SkillCardProps) {
   return (
-    <Link href={`/skills/${skill.id}`}>
+    <Link href={$path({ route: '/skills/[id]', routeParams: { id: skill.id } })}>
       <Card className="group" interactive padding="md">
         <div className="mb-2 flex items-start justify-between">
           <h3
             className="
-            font-semibold text-gray-900
-            group-hover:text-blue-600
-          "
+              font-semibold text-gray-900
+              group-hover:text-blue-600
+            "
           >
             {skill.name}
           </h3>

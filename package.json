@@ -2,17 +2,17 @@
   "name": "skills-marketplace",
   "private": true,
   "scripts": {
-    "dev": "turbo dev",
     "build": "turbo build",
-    "lint": "turbo lint",
-    "lint:fix": "turbo lint:fix",
-    "format": "turbo format",
-    "format:check": "turbo format:check",
-    "typecheck": "turbo typecheck",
     "clean": "turbo clean",
     "db:generate": "turbo db:generate --filter=@emergent/api",
     "db:migrate": "turbo db:migrate --filter=@emergent/api",
-    "db:studio": "turbo db:studio --filter=@emergent/api"
+    "db:studio": "turbo db:studio --filter=@emergent/api",
+    "dev": "turbo dev",
+    "format": "turbo format",
+    "format:check": "turbo format:check",
+    "lint": "turbo lint",
+    "lint:fix": "turbo lint:fix",
+    "typecheck": "turbo typecheck"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",

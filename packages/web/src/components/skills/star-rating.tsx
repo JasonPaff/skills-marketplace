@@ -15,9 +15,7 @@ export function StarRating({ rating, showLabel = true }: StarRatingProps) {
           className={
             star <= Math.round(rating)
               ? 'size-4 text-amber-400'
-              : `
-            size-4 text-gray-300
-          `
+              : `size-4 text-gray-300`
           }
           fill={star <= Math.round(rating) ? 'currentColor' : 'none'}
           key={star}

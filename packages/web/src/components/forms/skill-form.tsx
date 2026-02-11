@@ -2,6 +2,7 @@
 
 import { createSkillSchema, SKILL_CATEGORIES, type SkillCategory } from '@emergent/shared';
 import { useForm } from '@tanstack/react-form';
+import { $path } from 'next-typesafe-url';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -26,7 +27,7 @@ export function SkillForm() {
       setErrorMsg(err.message);
     },
     onSuccess: (skill) => {
-      router.push(`/skills/${skill.id}`);
+      router.push($path({ route: '/skills/[id]', routeParams: { id: skill.id } }));
     },
   });
 
@@ -184,8 +185,9 @@ export function SkillForm() {
         {errorMsg && (
           <div
             className="
-            rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700
-          "
+              rounded-lg border border-red-200 bg-red-50 p-3 text-sm
+              text-red-700
+            "
           >
             {errorMsg}
           </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import { $path } from 'next-typesafe-url';
 import Link from 'next/link';
 
 import { ErrorAlert } from '@/components/layout/error-alert';
@@ -24,16 +25,16 @@ export function SkillsList() {
       {skills && skills.length === 0 && (
         <div
           className="
-          rounded-lg border border-dashed border-gray-300 p-12 text-center
-        "
+            rounded-lg border border-dashed border-gray-300 p-12 text-center
+          "
         >
           <p className="text-gray-500">No skills found.</p>
           <Link
             className="
-            mt-2 inline-block text-sm text-blue-600
-            hover:underline
-          "
-            href="/skills/new"
+              mt-2 inline-block text-sm text-blue-600
+              hover:underline
+            "
+            href={$path({ route: '/skills/new' })}
           >
             Upload the first skill
           </Link>
@@ -43,10 +44,10 @@ export function SkillsList() {
       {skills && skills.length > 0 && (
         <div
           className="
-          grid gap-4
-          sm:grid-cols-2
-          lg:grid-cols-3
-        "
+            grid gap-4
+            sm:grid-cols-2
+            lg:grid-cols-3
+          "
         >
           {skills.map((skill) => (
             <SkillCard key={skill.id} skill={skill} />
