@@ -1,0 +1,16 @@
+meta {
+  name: Skills
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://skills-marketplace-api.vercel.app/api/skills
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
