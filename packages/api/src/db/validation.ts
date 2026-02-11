@@ -40,7 +40,8 @@ export const selectSkillSchema = createSelectSchema(skills);
 
 // ─── Project Skills Schemas ───────────────────────────────────────
 
-export const insertProjectSkillSchema =
-  createInsertSchema(projectSkills).omit(omitProjectSkillInsertFields as never);
+export const insertProjectSkillSchema = createInsertSchema(projectSkills).omit(
+  omitProjectSkillInsertFields as never,
+);
 
 export const selectProjectSkillSchema = createSelectSchema(projectSkills);
