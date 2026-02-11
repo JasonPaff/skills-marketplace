@@ -302,4 +302,6 @@ src/
 7. `pnpm --filter @emergent/web build` - production build succeeds
 
 ## Other
-- You must delegate a subagent and telll it to use context7 for any API interactions to ensure the new query hooks and route validation are properly utilized during implementation.
+- You must delegate all research to the context7 researcher agent.
+- You must delegate all implementation to a subagent
+- You are an orchestration agent. Your job is to break down the problem, delegate to subagents, and then integrate their work into a cohesive whole.
