@@ -23,20 +23,6 @@ interface UploadedFile {
   path: string;
 }
 
-function fileToBase64(file: globalThis.File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      // readAsDataURL returns "data:<mime>;base64,<data>" — strip the prefix
-      const dataUrl = reader.result as string;
-      const base64 = dataUrl.split(',')[1] ?? '';
-      resolve(base64);
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
 export function SkillForm() {
   const router = useRouter();
   const [errorMsg, setErrorMsg] = useState('');
@@ -245,8 +231,8 @@ export function SkillForm() {
           {uploadedFiles.length === 0 ? (
             <button
               className="
-                flex w-full flex-col items-center gap-2 rounded-lg border-2 border-dashed
-                border-gray-300 p-6 text-gray-500 transition
+                flex w-full flex-col items-center gap-2 rounded-lg border-2
+                border-dashed border-gray-300 p-6 text-gray-500 transition
                 hover:border-blue-400 hover:text-blue-600
               "
               onClick={() => fileInputRef.current?.click()}
@@ -259,12 +245,17 @@ export function SkillForm() {
           ) : (
             <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
               <div className="mb-2 flex items-center justify-between">
-                <span className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
+                <span className="
+                  flex items-center gap-1.5 text-sm font-medium text-gray-700
+                ">
                   <FolderOpen className="size-4" />
                   {uploadedFiles.length} file{uploadedFiles.length !== 1 && 's'}
                 </span>
                 <button
-                  className="text-xs text-blue-600 hover:underline"
+                  className="
+                    text-xs text-blue-600
+                    hover:underline
+                  "
                   onClick={() => fileInputRef.current?.click()}
                   type="button"
                 >
@@ -274,7 +265,11 @@ export function SkillForm() {
               <ul className="space-y-1">
                 {uploadedFiles.map((file) => (
                   <li
-                    className="flex items-center justify-between rounded px-2 py-1 text-sm text-gray-600 hover:bg-gray-100"
+                    className="
+                      flex items-center justify-between rounded-sm px-2 py-1
+                      text-sm text-gray-600
+                      hover:bg-gray-100
+                    "
                     key={file.path}
                   >
                     <span className="flex items-center gap-1.5">
@@ -282,7 +277,10 @@ export function SkillForm() {
                       {file.path}
                     </span>
                     <button
-                      className="text-gray-400 hover:text-red-500"
+                      className="
+                        text-gray-400
+                        hover:text-red-500
+                      "
                       onClick={() => removeFile(file.path)}
                       type="button"
                     >
@@ -312,4 +310,18 @@ export function SkillForm() {
       </Card>
     </form>
   );
+}
+
+function fileToBase64(file: globalThis.File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      // readAsDataURL returns "data:<mime>;base64,<data>" — strip the prefix
+      const dataUrl = reader.result as string;
+      const base64 = dataUrl.split(',')[1] ?? '';
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
