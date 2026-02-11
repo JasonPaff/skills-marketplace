@@ -1,10 +1,17 @@
-import { Hono } from "hono";
-import { zValidator } from "@hono/zod-validator";
-import { eq, ilike, and, sql } from "drizzle-orm";
-import { createSkillSchema, skillsQuerySchema, rateSkillSchema, forkSkillSchema } from "@emergent/shared";
-import type { Database } from "../db/index.js";
-import type { GitHubClient } from "../lib/github.js";
-import { skills, projectSkills, projects } from "../db/schema.js";
+import {
+  createSkillSchema,
+  forkSkillSchema,
+  rateSkillSchema,
+  skillsQuerySchema,
+} from '@emergent/shared';
+import { zValidator } from '@hono/zod-validator';
+import { and, eq, ilike, sql } from 'drizzle-orm';
+import { Hono } from 'hono';
+
+import type { Database } from '../db/index.js';
+import type { GitHubClient } from '../lib/github.js';
+
+import { projects, projectSkills, skills } from '../db/schema.js';
 
 type Env = {
   Variables: {
@@ -16,9 +23,9 @@ type Env = {
 const skillsRouter = new Hono<Env>();
 
 // GET /api/skills - List skills with optional filters
-skillsRouter.get("/", zValidator("query", skillsQuerySchema), async (c) => {
-  const { search, category, projectId, isGlobal } = c.req.valid("query");
-  const db = c.get("db");
+skillsRouter.get('/', zValidator('query', skillsQuerySchema), async (c) => {
+  const { category, isGlobal, search } = c.req.valid('query');
+  const db = c.get('db');
 
   const conditions = [];
 
@@ -40,36 +47,35 @@ skillsRouter.get("/", zValidator("query", skillsQuerySchema), async (c) => {
 });
 
 // GET /api/skills/:id - Get single skill
-skillsRouter.get("/:id", async (c) => {
-  const db = c.get("db");
-  const id = c.req.param("id");
+skillsRouter.get('/:id', async (c) => {
+  const db = c.get('db');
+  const id = c.req.param('id');
 
   const [skill] = await db.select().from(skills).where(eq(skills.id, id));
 
   if (!skill) {
-    return c.json({ error: "Not found", message: "Skill not found", statusCode: 404 }, 404);
+    return c.json({ error: 'Not found', message: 'Skill not found', statusCode: 404 }, 404);
   }
 
   return c.json({ data: skill });
 });
 
 // POST /api/skills - Create a new skill
-skillsRouter.post("/", async (c) => {
+skillsRouter.post('/', async (c) => {
   // NOTE: File upload handling (multipart/form-data) will be implemented
   // when building out the full endpoint. This handles the metadata portion.
-  const db = c.get("db");
-  const github = c.get("github");
+  const db = c.get('db');
   const body = await c.req.json();
 
   const parsed = createSkillSchema.safeParse(body);
   if (!parsed.success) {
     return c.json(
-      { error: "Validation error", message: parsed.error.message, statusCode: 400 },
-      400
+      { error: 'Validation error', message: parsed.error.message, statusCode: 400 },
+      400,
     );
   }
 
-  const { name, description, category, isGlobal, projectId, uploadedBy } = parsed.data;
+  const { category, description, isGlobal, name, projectId, uploadedBy } = parsed.data;
 
   // Determine GitHub path
   let githubPath: string;
@@ -77,19 +83,13 @@ skillsRouter.post("/", async (c) => {
     githubPath = `skills/global/${name}`;
   } else {
     // Look up project slug
-    const [project] = await db
-      .select()
-      .from(projects)
-      .where(eq(projects.id, projectId!));
+    const [project] = await db.select().from(projects).where(eq(projects.id, projectId!));
 
     if (!project) {
-      return c.json(
-        { error: "Not found", message: "Project not found", statusCode: 404 },
-        404
-      );
+      return c.json({ error: 'Not found', message: 'Project not found', statusCode: 404 }, 404);
     }
 
-    const projectSlug = project.name.toLowerCase().replace(/\s+/g, "-");
+    const projectSlug = project.name.toLowerCase().replace(/\s+/g, '-');
     githubPath = `skills/projects/${projectSlug}/${name}`;
   }
 
@@ -99,21 +99,21 @@ skillsRouter.post("/", async (c) => {
   const [skill] = await db
     .insert(skills)
     .values({
-      name,
-      description,
       category,
+      description,
       githubPath,
-      uploadedBy,
       isGlobal,
+      name,
+      uploadedBy,
     })
     .returning();
 
   // If project-specific, create project_skills entry
   if (!isGlobal && projectId) {
     await db.insert(projectSkills).values({
+      isCustomized: false,
       projectId,
       skillId: skill.id,
-      isCustomized: false,
     });
   }
 
@@ -121,15 +121,15 @@ skillsRouter.post("/", async (c) => {
 });
 
 // GET /api/skills/:id/download - Get download info and increment count
-skillsRouter.get("/:id/download", async (c) => {
-  const db = c.get("db");
-  const github = c.get("github");
-  const id = c.req.param("id");
+skillsRouter.get('/:id/download', async (c) => {
+  const db = c.get('db');
+  const github = c.get('github');
+  const id = c.req.param('id');
 
   const [skill] = await db.select().from(skills).where(eq(skills.id, id));
 
   if (!skill) {
-    return c.json({ error: "Not found", message: "Skill not found", statusCode: 404 }, 404);
+    return c.json({ error: 'Not found', message: 'Skill not found', statusCode: 404 }, 404);
   }
 
   // Increment download count
@@ -143,23 +143,23 @@ skillsRouter.get("/:id/download", async (c) => {
 
   return c.json({
     data: {
-      skill,
-      githubPath: skill.githubPath,
       files,
+      githubPath: skill.githubPath,
+      skill,
     },
   });
 });
 
 // POST /api/skills/:id/rate - Rate a skill
-skillsRouter.post("/:id/rate", zValidator("json", rateSkillSchema), async (c) => {
-  const db = c.get("db");
-  const id = c.req.param("id");
-  const { rating } = c.req.valid("json");
+skillsRouter.post('/:id/rate', zValidator('json', rateSkillSchema), async (c) => {
+  const db = c.get('db');
+  const id = c.req.param('id');
+  const { rating } = c.req.valid('json');
 
   const [skill] = await db.select().from(skills).where(eq(skills.id, id));
 
   if (!skill) {
-    return c.json({ error: "Not found", message: "Skill not found", statusCode: 404 }, 404);
+    return c.json({ error: 'Not found', message: 'Skill not found', statusCode: 404 }, 404);
   }
 
   const newTotalRating = skill.totalRating + rating;
@@ -169,9 +169,9 @@ skillsRouter.post("/:id/rate", zValidator("json", rateSkillSchema), async (c) =>
   const [updated] = await db
     .update(skills)
     .set({
-      totalRating: newTotalRating,
-      ratingCount: newRatingCount,
       averageRating: newAverageRating,
+      ratingCount: newRatingCount,
+      totalRating: newTotalRating,
     })
     .where(eq(skills.id, id))
     .returning();
@@ -180,28 +180,27 @@ skillsRouter.post("/:id/rate", zValidator("json", rateSkillSchema), async (c) =>
 });
 
 // POST /api/skills/:id/fork - Fork a skill to a project
-skillsRouter.post("/:id/fork", zValidator("json", forkSkillSchema), async (c) => {
-  const db = c.get("db");
-  const github = c.get("github");
-  const id = c.req.param("id");
-  const { projectId, newName } = c.req.valid("json");
+skillsRouter.post('/:id/fork', zValidator('json', forkSkillSchema), async (c) => {
+  const db = c.get('db');
+  const id = c.req.param('id');
+  const { newName, projectId } = c.req.valid('json');
 
   // Get original skill
   const [original] = await db.select().from(skills).where(eq(skills.id, id));
 
   if (!original) {
-    return c.json({ error: "Not found", message: "Skill not found", statusCode: 404 }, 404);
+    return c.json({ error: 'Not found', message: 'Skill not found', statusCode: 404 }, 404);
   }
 
   // Get project
   const [project] = await db.select().from(projects).where(eq(projects.id, projectId));
 
   if (!project) {
-    return c.json({ error: "Not found", message: "Project not found", statusCode: 404 }, 404);
+    return c.json({ error: 'Not found', message: 'Project not found', statusCode: 404 }, 404);
   }
 
   const skillName = newName ?? original.name;
-  const projectSlug = project.name.toLowerCase().replace(/\s+/g, "-");
+  const projectSlug = project.name.toLowerCase().replace(/\s+/g, '-');
   const githubPath = `skills/projects/${projectSlug}/${skillName}`;
 
   // TODO: Copy files from original.githubPath to new githubPath via GitHub API
@@ -210,22 +209,22 @@ skillsRouter.post("/:id/fork", zValidator("json", forkSkillSchema), async (c) =>
   const [forked] = await db
     .insert(skills)
     .values({
-      name: skillName,
-      description: original.description,
       category: original.category,
+      description: original.description,
       githubPath,
-      uploadedBy: original.uploadedBy,
       isGlobal: false,
+      name: skillName,
       parentSkillId: original.id,
+      uploadedBy: original.uploadedBy,
       version: original.version,
     })
     .returning();
 
   // Create project_skills entry
   await db.insert(projectSkills).values({
+    isCustomized: true,
     projectId,
     skillId: forked.id,
-    isCustomized: true,
   });
 
   return c.json({ data: forked }, 201);

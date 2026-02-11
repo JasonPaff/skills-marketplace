@@ -1,9 +1,11 @@
-import { Octokit } from "octokit";
+import { Octokit } from 'octokit';
+
+export type GitHubClient = ReturnType<typeof createGitHubClient>;
 
 export interface GitHubConfig {
-  token: string;
   owner: string;
   repo: string;
+  token: string;
 }
 
 export function createGitHubClient(config: GitHubConfig) {
@@ -15,13 +17,71 @@ export function createGitHubClient(config: GitHubConfig) {
      */
     async commitFile(path: string, content: string, message: string) {
       const response = await octokit.rest.repos.createOrUpdateFileContents({
-        owner: config.owner,
-        repo: config.repo,
-        path,
+        content: Buffer.from(content).toString('base64'),
         message,
-        content: Buffer.from(content).toString("base64"),
+        owner: config.owner,
+        path,
+        repo: config.repo,
       });
       return response.data;
+    },
+
+    /**
+     * Commit multiple files in a single commit using the Git tree API.
+     */
+    async commitFiles(files: Array<{ content: string; path: string }>, message: string) {
+      // Get the latest commit SHA on the default branch
+      const { data: ref } = await octokit.rest.git.getRef({
+        owner: config.owner,
+        ref: 'heads/main',
+        repo: config.repo,
+      });
+      const latestCommitSha = ref.object.sha;
+
+      // Create blobs for each file
+      const blobs = await Promise.all(
+        files.map(async (file) => {
+          const { data: blob } = await octokit.rest.git.createBlob({
+            content: Buffer.from(file.content).toString('base64'),
+            encoding: 'base64',
+            owner: config.owner,
+            repo: config.repo,
+          });
+          return { path: file.path, sha: blob.sha };
+        }),
+      );
+
+      // Create a new tree
+      const { data: tree } = await octokit.rest.git.createTree({
+        base_tree: latestCommitSha,
+        owner: config.owner,
+        repo: config.repo,
+        tree: blobs.map((blob) => ({
+          mode: '100644' as const,
+          path: blob.path,
+          sha: blob.sha,
+          type: 'blob' as const,
+        })),
+      });
+
+      // Create a commit
+      const { data: commit } = await octokit.rest.git.createCommit({
+        message,
+        owner: config.owner,
+        parents: [latestCommitSha],
+        repo: config.repo,
+        tree: tree.sha,
+      });
+
+      // Update the reference
+      await octokit.rest.git.updateRef({
+        owner: config.owner,
+        ref: 'heads/main',
+        repo: config.repo,
+        sha: commit.sha,
+      });
+
+      return commit;
     },
 
     /**
@@ -30,8 +90,8 @@ export function createGitHubClient(config: GitHubConfig) {
     async getContents(path: string) {
       const response = await octokit.rest.repos.getContent({
         owner: config.owner,
-        repo: config.repo,
         path,
+        repo: config.repo,
       });
       return response.data;
     },
@@ -39,7 +99,9 @@ export function createGitHubClient(config: GitHubConfig) {
     /**
      * List all files in a directory (recursive).
      */
-    async listFiles(path: string): Promise<Array<{ name: string; path: string; downloadUrl: string; size: number }>> {
+    async listFiles(
+      path: string,
+    ): Promise<Array<{ downloadUrl: string; name: string; path: string; size: number }>> {
       const contents = await this.getContents(path);
 
       if (!Array.isArray(contents)) {
@@ -47,76 +109,13 @@ export function createGitHubClient(config: GitHubConfig) {
       }
 
       return contents
-        .filter((item) => item.type === "file")
+        .filter((item) => item.type === 'file')
         .map((item) => ({
+          downloadUrl: item.download_url ?? '',
           name: item.name,
           path: item.path,
-          downloadUrl: item.download_url ?? "",
           size: item.size,
         }));
     },
-
-    /**
-     * Commit multiple files in a single commit using the Git tree API.
-     */
-    async commitFiles(
-      files: Array<{ path: string; content: string }>,
-      message: string
-    ) {
-      // Get the latest commit SHA on the default branch
-      const { data: ref } = await octokit.rest.git.getRef({
-        owner: config.owner,
-        repo: config.repo,
-        ref: "heads/main",
-      });
-      const latestCommitSha = ref.object.sha;
-
-      // Create blobs for each file
-      const blobs = await Promise.all(
-        files.map(async (file) => {
-          const { data: blob } = await octokit.rest.git.createBlob({
-            owner: config.owner,
-            repo: config.repo,
-            content: Buffer.from(file.content).toString("base64"),
-            encoding: "base64",
-          });
-          return { path: file.path, sha: blob.sha };
-        })
-      );
-
-      // Create a new tree
-      const { data: tree } = await octokit.rest.git.createTree({
-        owner: config.owner,
-        repo: config.repo,
-        base_tree: latestCommitSha,
-        tree: blobs.map((blob) => ({
-          path: blob.path,
-          mode: "100644" as const,
-          type: "blob" as const,
-          sha: blob.sha,
-        })),
-      });
-
-      // Create a commit
-      const { data: commit } = await octokit.rest.git.createCommit({
-        owner: config.owner,
-        repo: config.repo,
-        message,
-        tree: tree.sha,
-        parents: [latestCommitSha],
-      });
-
-      // Update the reference
-      await octokit.rest.git.updateRef({
-        owner: config.owner,
-        repo: config.repo,
-        ref: "heads/main",
-        sha: commit.sha,
-      });
-
-      return commit;
-    },
   };
 }
-
-export type GitHubClient = ReturnType<typeof createGitHubClient>;

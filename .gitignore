@@ -27,5 +27,6 @@ npm-debug.log*
 
 # misc
 *.tsbuildinfo
+.eslintcache
 
 .vercel

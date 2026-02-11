@@ -1,13 +1,14 @@
-import "dotenv/config";
-import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
-import * as schema from "./schema.js";
+import 'dotenv/config';
+import { neon } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-http';
+
+import * as schema from './schema.js';
 
 const sql = neon(process.env.DATABASE_URL!);
 const db = drizzle(sql, { schema });
 
 async function seed() {
-  console.log("Seeding database...");
+  console.log('Seeding database...');
 
   // Clear existing data (order matters for FK constraints)
   await db.delete(schema.projectSkills);
@@ -18,30 +19,42 @@ async function seed() {
   // Create clients
   const [acme] = await db
     .insert(schema.clients)
-    .values({ name: "Acme Corp", description: "Large enterprise client" })
+    .values({ description: 'Large enterprise client', name: 'Acme Corp' })
     .returning();
 
   const [northwind] = await db
     .insert(schema.clients)
-    .values({ name: "Northwind Traders", description: "Mid-market retail client" })
+    .values({ description: 'Mid-market retail client', name: 'Northwind Traders' })
     .returning();
 
   console.log(`  Created ${2} clients`);
 
   // Create projects
-  const [acmeWeb] = await db
+  await db
     .insert(schema.projects)
-    .values({ clientId: acme.id, name: "Acme Web Portal", description: "Customer-facing web application" })
+    .values({
+      clientId: acme.id,
+      description: 'Customer-facing web application',
+      name: 'Acme Web Portal',
+    })
     .returning();
 
   const [acmeApi] = await db
     .insert(schema.projects)
-    .values({ clientId: acme.id, name: "Acme API Platform", description: "Internal API microservices" })
+    .values({
+      clientId: acme.id,
+      description: 'Internal API microservices',
+      name: 'Acme API Platform',
+    })
     .returning();
 
   const [northwindApp] = await db
     .insert(schema.projects)
-    .values({ clientId: northwind.id, name: "Northwind Mobile App", description: "React Native mobile application" })
+    .values({
+      clientId: northwind.id,
+      description: 'React Native mobile application',
+      name: 'Northwind Mobile App',
+    })
     .returning();
 
   console.log(`  Created ${3} projects`);
@@ -51,96 +64,104 @@ async function seed() {
     .insert(schema.skills)
     .values([
       {
-        name: "react-component-patterns",
-        description: "Best practices for React component architecture including compound components, render props, and hooks patterns.",
-        category: "react",
-        githubPath: "skills/global/react-component-patterns",
-        uploadedBy: "jason.paff@emergent.com",
+        category: 'react',
+        description:
+          'Best practices for React component architecture including compound components, render props, and hooks patterns.',
+        githubPath: 'skills/global/react-component-patterns',
         isGlobal: true,
+        name: 'react-component-patterns',
+        uploadedBy: 'jason.paff@emergent.com',
       },
       {
-        name: "dotnet-api-scaffolding",
-        description: "Generate .NET Web API controllers, services, and DTOs following Emergent coding standards.",
-        category: "dotnet",
-        githubPath: "skills/global/dotnet-api-scaffolding",
-        uploadedBy: "sarah.chen@emergent.com",
-        isGlobal: true,
+        averageRating: '4.00',
+        category: 'dotnet',
+        description:
+          'Generate .NET Web API controllers, services, and DTOs following Emergent coding standards.',
         downloadCount: 12,
-        totalRating: 20,
+        githubPath: 'skills/global/dotnet-api-scaffolding',
+        isGlobal: true,
+        name: 'dotnet-api-scaffolding',
         ratingCount: 5,
-        averageRating: "4.00",
+        totalRating: 20,
+        uploadedBy: 'sarah.chen@emergent.com',
       },
       {
-        name: "sql-query-optimizer",
-        description: "Analyze and optimize SQL queries for performance, suggesting index improvements and query rewrites.",
-        category: "sql",
-        githubPath: "skills/global/sql-query-optimizer",
-        uploadedBy: "mike.johnson@emergent.com",
-        isGlobal: true,
+        averageRating: '4.67',
+        category: 'sql',
+        description:
+          'Analyze and optimize SQL queries for performance, suggesting index improvements and query rewrites.',
         downloadCount: 8,
-        totalRating: 14,
+        githubPath: 'skills/global/sql-query-optimizer',
+        isGlobal: true,
+        name: 'sql-query-optimizer',
         ratingCount: 3,
-        averageRating: "4.67",
+        totalRating: 14,
+        uploadedBy: 'mike.johnson@emergent.com',
       },
       {
-        name: "typescript-strict-mode",
-        description: "Enforce strict TypeScript patterns including proper null checks, exhaustive switch statements, and branded types.",
-        category: "typescript",
-        githubPath: "skills/global/typescript-strict-mode",
-        uploadedBy: "jason.paff@emergent.com",
-        isGlobal: true,
+        averageRating: '4.50',
+        category: 'typescript',
+        description:
+          'Enforce strict TypeScript patterns including proper null checks, exhaustive switch statements, and branded types.',
         downloadCount: 25,
-        totalRating: 45,
+        githubPath: 'skills/global/typescript-strict-mode',
+        isGlobal: true,
+        name: 'typescript-strict-mode',
         ratingCount: 10,
-        averageRating: "4.50",
+        totalRating: 45,
+        uploadedBy: 'jason.paff@emergent.com',
       },
       {
-        name: "unit-test-generator",
-        description: "Generate comprehensive unit tests with arrange-act-assert pattern, mocking strategies, and edge case coverage.",
-        category: "testing",
-        githubPath: "skills/global/unit-test-generator",
-        uploadedBy: "sarah.chen@emergent.com",
-        isGlobal: true,
+        averageRating: '4.29',
+        category: 'testing',
+        description:
+          'Generate comprehensive unit tests with arrange-act-assert pattern, mocking strategies, and edge case coverage.',
         downloadCount: 18,
-        totalRating: 30,
+        githubPath: 'skills/global/unit-test-generator',
+        isGlobal: true,
+        name: 'unit-test-generator',
         ratingCount: 7,
-        averageRating: "4.29",
+        totalRating: 30,
+        uploadedBy: 'sarah.chen@emergent.com',
       },
       {
-        name: "docker-compose-setup",
-        description: "Create Docker Compose configurations for local development with database, cache, and service dependencies.",
-        category: "devops",
-        githubPath: "skills/global/docker-compose-setup",
-        uploadedBy: "mike.johnson@emergent.com",
-        isGlobal: true,
+        averageRating: '4.50',
+        category: 'devops',
+        description:
+          'Create Docker Compose configurations for local development with database, cache, and service dependencies.',
         downloadCount: 6,
+        githubPath: 'skills/global/docker-compose-setup',
+        isGlobal: true,
+        name: 'docker-compose-setup',
+        ratingCount: 2,
         totalRating: 9,
-        ratingCount: 2,
-        averageRating: "4.50",
+        uploadedBy: 'mike.johnson@emergent.com',
       },
       {
-        name: "security-audit-checklist",
-        description: "Run through OWASP Top 10 security checks on code, identifying vulnerabilities and suggesting mitigations.",
-        category: "security",
-        githubPath: "skills/global/security-audit-checklist",
-        uploadedBy: "jason.paff@emergent.com",
-        isGlobal: true,
+        averageRating: '5.00',
+        category: 'security',
+        description:
+          'Run through OWASP Top 10 security checks on code, identifying vulnerabilities and suggesting mitigations.',
         downloadCount: 3,
-        totalRating: 5,
+        githubPath: 'skills/global/security-audit-checklist',
+        isGlobal: true,
+        name: 'security-audit-checklist',
         ratingCount: 1,
-        averageRating: "5.00",
+        totalRating: 5,
+        uploadedBy: 'jason.paff@emergent.com',
       },
       {
-        name: "react-native-navigation",
-        description: "Set up and configure React Navigation with typed routes, deep linking, and authentication flows.",
-        category: "react-native",
-        githubPath: "skills/global/react-native-navigation",
-        uploadedBy: "sarah.chen@emergent.com",
-        isGlobal: true,
+        averageRating: '3.50',
+        category: 'react-native',
+        description:
+          'Set up and configure React Navigation with typed routes, deep linking, and authentication flows.',
         downloadCount: 4,
-        totalRating: 7,
+        githubPath: 'skills/global/react-native-navigation',
+        isGlobal: true,
+        name: 'react-native-navigation',
         ratingCount: 2,
-        averageRating: "3.50",
+        totalRating: 7,
+        uploadedBy: 'sarah.chen@emergent.com',
       },
     ])
     .returning();
@@ -152,21 +173,23 @@ async function seed() {
     .insert(schema.skills)
     .values([
       {
-        name: "acme-api-conventions",
-        description: "Acme-specific API naming conventions, error response formats, and pagination patterns.",
-        category: "dotnet",
-        githubPath: "skills/projects/acme-api-platform/acme-api-conventions",
-        uploadedBy: "jason.paff@emergent.com",
+        category: 'dotnet',
+        description:
+          'Acme-specific API naming conventions, error response formats, and pagination patterns.',
+        githubPath: 'skills/projects/acme-api-platform/acme-api-conventions',
         isGlobal: false,
-        parentSkillId: globalSkills.find((s) => s.name === "dotnet-api-scaffolding")!.id,
+        name: 'acme-api-conventions',
+        parentSkillId: globalSkills.find((s) => s.name === 'dotnet-api-scaffolding')!.id,
+        uploadedBy: 'jason.paff@emergent.com',
       },
       {
-        name: "northwind-component-library",
-        description: "Northwind brand-specific React Native components with their design system tokens and accessibility requirements.",
-        category: "react-native",
-        githubPath: "skills/projects/northwind-mobile-app/northwind-component-library",
-        uploadedBy: "sarah.chen@emergent.com",
+        category: 'react-native',
+        description:
+          'Northwind brand-specific React Native components with their design system tokens and accessibility requirements.',
+        githubPath: 'skills/projects/northwind-mobile-app/northwind-component-library',
         isGlobal: false,
+        name: 'northwind-component-library',
+        uploadedBy: 'sarah.chen@emergent.com',
       },
     ])
     .returning();
@@ -175,15 +198,15 @@ async function seed() {
 
   // Link project-specific skills
   await db.insert(schema.projectSkills).values([
-    { projectId: acmeApi.id, skillId: projectSpecificSkills[0].id, isCustomized: true },
-    { projectId: northwindApp.id, skillId: projectSpecificSkills[1].id, isCustomized: false },
+    { isCustomized: true, projectId: acmeApi.id, skillId: projectSpecificSkills[0].id },
+    { isCustomized: false, projectId: northwindApp.id, skillId: projectSpecificSkills[1].id },
   ]);
 
   console.log(`  Created ${2} project-skill links`);
-  console.log("Seed complete!");
+  console.log('Seed complete!');
 }
 
 seed().catch((err) => {
-  console.error("Seed failed:", err);
+  console.error('Seed failed:', err);
   process.exit(1);
 });

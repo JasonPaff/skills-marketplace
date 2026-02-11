@@ -10,7 +10,20 @@
       "persistent": true
     },
     "lint": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build"],
+      "inputs": ["src/**/*.{ts,tsx,js,jsx}", "eslint.config.*"]
+    },
+    "lint:fix": {
+      "cache": false
+    },
+    "format": {
+      "cache": false
+    },
+    "format:check": {
+      "inputs": ["src/**/*.{ts,tsx,js,jsx,css,json,md}"]
+    },
+    "clean": {
+      "cache": false
     },
     "db:generate": {
       "cache": false
