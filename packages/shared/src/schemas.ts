@@ -85,9 +85,7 @@ export const createSkillSchema = z.object({
         const skillMd = files.find((f) => f.path === 'SKILL.md');
         if (!skillMd) return true; // handled by the refine above
         try {
-          const decoded = typeof atob === 'function'
-            ? atob(skillMd.content)
-            : Buffer.from(skillMd.content, 'base64').toString('utf-8');
+          const decoded = atob(skillMd.content);
           parseSkillMd(decoded);
           return true;
         } catch {
