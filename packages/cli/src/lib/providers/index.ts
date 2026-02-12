@@ -12,6 +12,12 @@ import { copilotAdapter } from './copilot.js';
  */
 export interface ProviderAdapter {
   /**
+   * The name of the provider's config directory relative to the project
+   * or home directory (e.g., ".claude" or ".github").
+   */
+  configDirName: string;
+
+  /**
    * Returns a user-friendly display path (using `~` for home directory)
    * for showing in CLI output.
    */
@@ -25,6 +31,13 @@ export interface ProviderAdapter {
 
   /** Display name for the provider (e.g., "Claude Code") */
   name: string;
+
+  /**
+   * Path segments beneath the config directory that lead to the
+   * skill installation folder (e.g., ["rules", "skills"] produces
+   * "<configDir>/rules/skills").
+   */
+  skillPathSegments: readonly string[];
 
   /** The install target identifier */
   target: InstallTarget;

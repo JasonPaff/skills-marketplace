@@ -1,30 +1,35 @@
-import type { InstallTarget, SkillScope } from '@emergent/shared';
+import type { SkillScope } from '@emergent/shared';
 
 import os from 'node:os';
 import path from 'node:path';
 
-// ─── Provider Adapter Interface ──────────────────────────────────
-// Defined locally until the shared index module is finalized.
+import type { ProviderAdapter } from './index.js';
 
-export interface ProviderAdapter {
-  getDisplayPath(scope: SkillScope, skillName: string): string;
-  getTargetDirectory(scope: SkillScope, skillName: string): string;
-  name: string;
-  target: InstallTarget;
-}
+import { KNOWN_CONFIG_DIRS, resolveProjectRoot } from '../project-root.js';
 
 // ─── Claude Code Provider ────────────────────────────────────────
 
 export const claudeAdapter: ProviderAdapter = {
+  configDirName: '.claude',
+
   getDisplayPath(scope: SkillScope, skillName: string): string {
-    return scope === 'global' ? `~/.claude/${skillName}` : `.claude/${skillName}`;
+    if (scope === 'global') {
+      return `~/.claude/skills/${skillName}`;
+    }
+    return `.claude/skills/${skillName}`;
   },
+
   getTargetDirectory(scope: SkillScope, skillName: string): string {
-    const base = scope === 'global' ? os.homedir() : process.cwd();
-    return path.join(base, '.claude', skillName);
+    if (scope === 'global') {
+      return path.join(os.homedir(), '.claude', 'skills', skillName);
+    }
+    const projectRoot = resolveProjectRoot(process.cwd(), KNOWN_CONFIG_DIRS);
+    return path.join(projectRoot, '.claude', 'skills', skillName);
   },
 
   name: 'Claude Code',
+
+  skillPathSegments: ['skills'] as const,
 
   target: 'claude',
 };
