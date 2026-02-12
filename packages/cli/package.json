@@ -1,6 +1,6 @@
 {
   "name": "@detergent/skills",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "CLI for the Detergent Skills Marketplace",
   "type": "module",
   "bin": {
@@ -25,14 +25,14 @@
   },
   "dependencies": {
     "@clack/prompts": "^0.10.0",
-    "@emergent/api": "workspace:*",
-    "@emergent/shared": "workspace:*",
     "chalk": "^5.6.0",
     "commander": "^14.0.0",
     "hono": "^4.7.0",
     "ora": "^9.3.0"
   },
   "devDependencies": {
+    "@emergent/api": "workspace:*",
+    "@emergent/shared": "workspace:*",
     "@types/node": "^22.0.0",
     "tsup": "^8.5.0",
     "tsx": "^4.21.0",
