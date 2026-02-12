@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 
 // ─── Known Config Directories ───────────────────────────────────
@@ -23,10 +24,11 @@ const PROJECT_MARKERS = ['.git', 'package.json'] as const;
  * Detection priority:
  *  1. If `cwd` is *inside* a known config directory, return
  *     that directory's parent (the project root).
- *  2. Walk upward looking for a directory that *contains* one
- *     of the known config directories.
- *  3. Walk upward looking for common project markers (`.git`,
+ *  2. Walk upward looking for common project markers (`.git`,
  *     `package.json`).
+ *  3. Walk upward looking for a directory that *contains* one
+ *     of the known config directories (skipping the home
+ *     directory, whose `~/.claude` is global config).
  *  4. Fall back to the original `cwd`.
  *
  * @param cwd            - The current working directory to start from.
@@ -53,28 +55,7 @@ export function resolveProjectRoot(cwd: string, configDirNames: readonly string[
     current = parent;
   }
 
-  // ── Priority 2: find a directory containing a config dir ────
-  current = resolved;
-  while (current !== root) {
-    for (const dirName of configDirNames) {
-      const candidate = path.join(current, dirName);
-      if (isDirectory(candidate)) {
-        return current;
-      }
-    }
-
-    current = path.dirname(current);
-  }
-
-  // Also check the filesystem root itself
-  for (const dirName of configDirNames) {
-    const candidate = path.join(root, dirName);
-    if (isDirectory(candidate)) {
-      return root;
-    }
-  }
-
-  // ── Priority 3: look for project markers ────────────────────
+  // ── Priority 2: look for project markers ────────────────────
   current = resolved;
   while (current !== root) {
     for (const marker of PROJECT_MARKERS) {
@@ -91,6 +72,24 @@ export function resolveProjectRoot(cwd: string, configDirNames: readonly string[
     if (exists(path.join(root, marker))) {
       return root;
     }
+  }
+
+  // ── Priority 3: find a directory containing a config dir ────
+  // Skip the home directory — ~/.claude is global config, not a
+  // project indicator.
+  const homedir = path.resolve(os.homedir());
+  current = resolved;
+  while (current !== root) {
+    if (current !== homedir) {
+      for (const dirName of configDirNames) {
+        const candidate = path.join(current, dirName);
+        if (isDirectory(candidate)) {
+          return current;
+        }
+      }
+    }
+
+    current = path.dirname(current);
   }
 
   // ── Priority 4: fallback ────────────────────────────────────
