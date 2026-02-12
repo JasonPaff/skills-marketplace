@@ -157,7 +157,7 @@ export function SkillsTable() {
 
   const filteredSkills = useMemo(() => {
     if (!skills) return [];
-    return skills.filter((skill) => {
+    return skills.filter((skill: Skill) => {
       if (downloads && skill.downloadCount < downloads) return false;
       return true;
     });

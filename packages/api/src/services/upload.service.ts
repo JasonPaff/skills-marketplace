@@ -145,10 +145,10 @@ export function createUploadService(
       const insertedAgents = [];
       for (const agent of validatedAgents) {
         const record = await agentQueries.insertAgent({
-          color: agent.frontmatter.color,
+          color: agent.frontmatter.color ?? undefined,
           description: agent.description,
           githubPath: agent.githubPath,
-          model: agent.frontmatter.model,
+          model: agent.frontmatter.model ?? undefined,
           name: agent.name,
           tools: agent.frontmatter.tools,
         });
