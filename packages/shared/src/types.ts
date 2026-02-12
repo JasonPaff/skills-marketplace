@@ -8,7 +8,6 @@ import type {
   forkSkillSchema,
   projectSchema,
   projectWithClientSchema,
-  rateSkillSchema,
   skillSchema,
 } from './schemas.js';
 
@@ -37,8 +36,6 @@ export interface ProjectSkill extends Skill {
 // ─── API Response Types ───────────────────────────────────────────
 
 export type ProjectWithClient = z.infer<typeof projectWithClientSchema>;
-
-export type RateSkill = z.infer<typeof rateSkillSchema>;
 
 export type Skill = z.infer<typeof skillSchema>;
 

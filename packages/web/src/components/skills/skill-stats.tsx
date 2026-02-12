@@ -1,21 +1,17 @@
 import type { Skill } from '@emergent/shared';
 
-import { formatRating } from '@/lib/utils/format';
-
 interface SkillStatsProps {
   skill: Skill;
 }
 
 export function SkillStats({ skill }: SkillStatsProps) {
   return (
-    <div className="mb-6 grid grid-cols-3 gap-4 rounded-lg bg-surface-secondary p-4">
+    <div className="
+      mb-6 grid grid-cols-2 gap-4 rounded-lg bg-surface-secondary p-4
+    ">
       <div className="text-center">
         <div className="text-2xl font-bold text-text-primary">{skill.downloadCount}</div>
         <div className="text-xs text-text-tertiary">Downloads</div>
-      </div>
-      <div className="text-center">
-        <div className="text-2xl font-bold text-text-primary">{formatRating(skill.averageRating)}</div>
-        <div className="text-xs text-text-tertiary">Avg Rating ({skill.ratingCount} reviews)</div>
       </div>
       <div className="text-center">
         <div className="text-2xl font-bold text-text-primary">

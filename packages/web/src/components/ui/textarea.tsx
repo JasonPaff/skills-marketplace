@@ -6,8 +6,10 @@ import { cn } from '@/lib/utils/cn';
 
 const textareaVariants = cva(
   `
-    rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text-primary
-    focus:border-accent-ring focus:ring-1 focus:ring-accent-ring focus:outline-none
+    rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm
+    text-text-primary
+    focus:border-accent-ring focus:ring-1 focus:ring-accent-ring
+    focus:outline-none
     disabled:cursor-not-allowed disabled:opacity-50
   `,
   {

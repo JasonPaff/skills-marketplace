@@ -61,13 +61,10 @@ async function seed() {
 
   // Create global skills
   const globalSkillData: {
-    averageRating?: number;
     description: string;
     downloadCount?: number;
     githubPath: string;
     name: string;
-    ratingCount?: number;
-    totalRating?: number;
   }[] = [
     {
       description:
@@ -76,74 +73,53 @@ async function seed() {
       name: 'react-component-patterns',
     },
     {
-      averageRating: 4.0,
       description:
         'Generate .NET Web API controllers, services, and DTOs following Emergent coding standards.',
       downloadCount: 12,
       githubPath: 'skills/global/dotnet-api-scaffolding',
       name: 'dotnet-api-scaffolding',
-      ratingCount: 5,
-      totalRating: 20,
     },
     {
-      averageRating: 4.67,
       description:
         'Analyze and optimize SQL queries for performance, suggesting index improvements and query rewrites.',
       downloadCount: 8,
       githubPath: 'skills/global/sql-query-optimizer',
       name: 'sql-query-optimizer',
-      ratingCount: 3,
-      totalRating: 14,
     },
     {
-      averageRating: 4.5,
       description:
         'Enforce strict TypeScript patterns including proper null checks, exhaustive switch statements, and branded types.',
       downloadCount: 25,
       githubPath: 'skills/global/typescript-strict-mode',
       name: 'typescript-strict-mode',
-      ratingCount: 10,
-      totalRating: 45,
     },
     {
-      averageRating: 4.29,
       description:
         'Generate comprehensive unit tests with arrange-act-assert pattern, mocking strategies, and edge case coverage.',
       downloadCount: 18,
       githubPath: 'skills/global/unit-test-generator',
       name: 'unit-test-generator',
-      ratingCount: 7,
-      totalRating: 30,
     },
     {
-      averageRating: 4.5,
       description:
         'Create Docker Compose configurations for local development with database, cache, and service dependencies.',
       downloadCount: 6,
       githubPath: 'skills/global/docker-compose-setup',
       name: 'docker-compose-setup',
-      ratingCount: 2,
-      totalRating: 9,
     },
     {
-      averageRating: 5.0,
       description:
         'Run through OWASP Top 10 security checks on code, identifying vulnerabilities and suggesting mitigations.',
       downloadCount: 3,
       githubPath: 'skills/global/security-audit-checklist',
       name: 'security-audit-checklist',
-      ratingCount: 1,
-      totalRating: 5,
     },
     {
-      averageRating: 3.5,
       description:
         'Set up and configure React Navigation with typed routes, deep linking, and authentication flows.',
       downloadCount: 4,
       githubPath: 'skills/global/react-native-navigation',
       name: 'react-native-navigation',
-      ratingCount: 2,
-      totalRating: 7,
     },
   ];
 

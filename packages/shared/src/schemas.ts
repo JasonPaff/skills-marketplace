@@ -1,8 +1,6 @@
 import matter from 'gray-matter';
 import { z } from 'zod';
 
-import { RATING_MAX, RATING_MIN } from './constants.js';
-
 // ─── Client Schemas ───────────────────────────────────────────────
 
 export const createClientSchema = z.object({
@@ -104,20 +102,12 @@ export const createSkillSchema = z.object({
 });
 
 export const skillSchema = createSkillSchema.omit({ files: true }).extend({
-  averageRating: z.number().min(0).max(5),
   downloadCount: z.number().int().min(0),
   githubPath: z.string(),
   id: z.uuid(),
   parentSkillId: z.uuid().nullable(),
-  ratingCount: z.number().int().min(0),
-  totalRating: z.number().int().min(0),
   uploadedAt: z.iso.datetime(),
   version: z.string(),
-});
-
-export const rateSkillSchema = z.object({
-  rating: z.number().int().min(RATING_MIN).max(RATING_MAX),
-  userEmail: z.email(),
 });
 
 export const forkSkillSchema = z.object({

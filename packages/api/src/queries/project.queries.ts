@@ -47,7 +47,6 @@ export function createProjectQueries(db: Database) {
     async selectProjectSkillsByProjectId(projectId: string) {
       return db
         .select({
-          averageRating: skills.averageRating,
           description: skills.description,
           downloadCount: skills.downloadCount,
           githubPath: skills.githubPath,
@@ -55,8 +54,6 @@ export function createProjectQueries(db: Database) {
           isCustomized: projectSkills.isCustomized,
           name: skills.name,
           parentSkillId: skills.parentSkillId,
-          ratingCount: skills.ratingCount,
-          totalRating: skills.totalRating,
           uploadedAt: skills.uploadedAt,
           version: skills.version,
         })

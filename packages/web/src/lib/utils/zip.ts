@@ -38,10 +38,22 @@ export async function extractZipFiles(file: File): Promise<ExtractedFile[]> {
 }
 
 /**
+ * Extract the root folder name from a zip file (for deriving skill name).
+ * Falls back to the zip filename without extension.
+ */
+export function getZipRootName(file: File, paths: string[]): string {
+  const root = detectSingleRootFolder(paths);
+  if (root) return root;
+
+  // Fall back to zip filename minus extension
+  return file.name.replace(/\.zip$/i, '');
+}
+
+/**
  * Detect if all paths share a single root folder.
  * Returns the folder name if so, otherwise null.
  */
-function detectSingleRootFolder(paths: string[]): string | null {
+function detectSingleRootFolder(paths: string[]): null | string {
   if (paths.length === 0) return null;
 
   const roots = new Set(paths.map((p) => p.split('/')[0]));
@@ -54,16 +66,4 @@ function detectSingleRootFolder(paths: string[]): string | null {
   }
 
   return null;
-}
-
-/**
- * Extract the root folder name from a zip file (for deriving skill name).
- * Falls back to the zip filename without extension.
- */
-export function getZipRootName(file: File, paths: string[]): string {
-  const root = detectSingleRootFolder(paths);
-  if (root) return root;
-
-  // Fall back to zip filename minus extension
-  return file.name.replace(/\.zip$/i, '');
 }

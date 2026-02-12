@@ -32,8 +32,8 @@ export function ThemeToggle() {
     <Popover.Root>
       <Popover.Trigger
         className="
-          fixed right-4 top-4 z-50 rounded-full border border-border bg-surface p-2.5
-          shadow-md transition
+          fixed top-4 right-4 z-50 rounded-full border border-border bg-surface
+          p-2.5 shadow-md transition
           hover:bg-surface-secondary
         "
       >
@@ -46,7 +46,10 @@ export function ThemeToggle() {
               w-56 rounded-xl border border-border bg-surface p-4 shadow-xl
             "
           >
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-tertiary">
+            <p className="
+              mb-3 text-xs font-semibold tracking-wider text-text-tertiary
+              uppercase
+            ">
               Appearance
             </p>
 
@@ -54,10 +57,16 @@ export function ThemeToggle() {
             <div className="mb-4 flex rounded-lg bg-surface-secondary p-1">
               <button
                 className={cn(
-                  'flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition',
+                  `
+                    flex flex-1 items-center justify-center gap-1.5 rounded-md
+                    px-3 py-1.5 text-xs font-medium transition
+                  `,
                   !isDark
                     ? 'bg-surface text-text-primary shadow-sm'
-                    : 'text-text-tertiary hover:text-text-secondary',
+                    : `
+                      text-text-tertiary
+                      hover:text-text-secondary
+                    `,
                 )}
                 onClick={() => setTheme('light')}
               >
@@ -66,10 +75,16 @@ export function ThemeToggle() {
               </button>
               <button
                 className={cn(
-                  'flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition',
+                  `
+                    flex flex-1 items-center justify-center gap-1.5 rounded-md
+                    px-3 py-1.5 text-xs font-medium transition
+                  `,
                   isDark
                     ? 'bg-surface text-text-primary shadow-sm'
-                    : 'text-text-tertiary hover:text-text-secondary',
+                    : `
+                      text-text-tertiary
+                      hover:text-text-secondary
+                    `,
                 )}
                 onClick={() => setTheme('dark')}
               >
@@ -79,7 +94,10 @@ export function ThemeToggle() {
             </div>
 
             {/* Accent color swatches */}
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-text-tertiary">
+            <p className="
+              mb-2 text-xs font-semibold tracking-wider text-text-tertiary
+              uppercase
+            ">
               Accent Color
             </p>
             <div className="grid grid-cols-6 gap-2">
@@ -87,10 +105,16 @@ export function ThemeToggle() {
                 <button
                   aria-label={swatch.label}
                   className={cn(
-                    'size-7 rounded-full transition hover:scale-110',
+                    `
+                      size-7 rounded-full transition
+                      hover:scale-110
+                    `,
                     swatch.color,
                     accentColor === swatch.value
-                      ? 'ring-2 ring-text-primary ring-offset-2 ring-offset-surface'
+                      ? `
+                        ring-2 ring-text-primary ring-offset-2
+                        ring-offset-surface
+                      `
                       : '',
                   )}
                   key={swatch.value}

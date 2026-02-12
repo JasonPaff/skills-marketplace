@@ -21,31 +21,6 @@ interface UploadedFile {
   path: string;
 }
 
-function sanitizeName(raw: string): string {
-  return raw
-    .toLowerCase()
-    .replace(/[^a-z0-9-]/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
-}
-
-function tryParseFrontmatter(files: UploadedFile[]): {
-  description?: string;
-  error?: string;
-  name?: string;
-} {
-  const skillMd = files.find((f) => f.path === 'SKILL.md');
-  if (!skillMd) return { error: 'A SKILL.md file is required' };
-
-  try {
-    const decoded = atob(skillMd.content);
-    const { frontmatter } = parseSkillMd(decoded);
-    return { description: frontmatter.description, name: frontmatter.name };
-  } catch (err) {
-    return { error: err instanceof Error ? err.message : 'Invalid SKILL.md' };
-  }
-}
-
 export function SkillForm() {
   const router = useRouter();
   const [errorMsg, setErrorMsg] = useState('');
@@ -170,20 +145,33 @@ export function SkillForm() {
         {/* Collapsible Skill Format Guide */}
         <div className="rounded-lg border border-border bg-surface-secondary">
           <button
-            className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-medium text-text-secondary"
+            className="
+              flex w-full items-center gap-2 px-4 py-3 text-left text-sm
+              font-medium text-text-secondary
+            "
             onClick={() => setGuideOpen(!guideOpen)}
             type="button"
           >
-            {guideOpen ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
+            {guideOpen ? <ChevronDown className="size-4" /> : <ChevronRight className="
+              size-4
+            " />}
             Skill Format Guide
           </button>
           {guideOpen && (
-            <div className="border-t border-border px-4 pb-4 pt-3 text-sm text-text-secondary">
+            <div className="
+              border-t border-border px-4 pt-3 pb-4 text-sm text-text-secondary
+            ">
               <p className="mb-2">
-                A skill is a folder containing a <code className="rounded bg-surface-tertiary px-1 py-0.5 text-xs">SKILL.md</code> file
+                A skill is a folder containing a <code className="
+                  rounded-sm bg-surface-tertiary px-1 py-0.5 text-xs
+                ">SKILL.md</code> file
                 with YAML frontmatter:
               </p>
-              <pre className="mb-3 overflow-x-auto rounded-md bg-gray-800 p-3 text-xs text-gray-100 dark:bg-gray-950">
+              <pre className="
+                mb-3 overflow-x-auto rounded-md bg-gray-800 p-3 text-xs
+                text-gray-100
+                dark:bg-gray-950
+              ">
 {`---
 name: my-skill-name
 description: A short description of what this skill does
@@ -193,8 +181,14 @@ description: A short description of what this skill does
 
 Instructions for the AI agent...`}
               </pre>
-              <ul className="list-inside list-disc space-y-1 text-xs text-text-tertiary">
-                <li>The <code className="rounded bg-surface-tertiary px-1 py-0.5">name</code> and <code className="rounded bg-surface-tertiary px-1 py-0.5">description</code> fields are required in the frontmatter</li>
+              <ul className="
+                list-inside list-disc space-y-1 text-xs text-text-tertiary
+              ">
+                <li>The <code className="
+                  rounded-sm bg-surface-tertiary px-1 py-0.5
+                ">name</code> and <code className="
+                  rounded-sm bg-surface-tertiary px-1 py-0.5
+                ">description</code> fields are required in the frontmatter</li>
                 <li>Additional files (templates, configs, etc.) can be included alongside SKILL.md</li>
                 <li>
                   See the full standard at{' '}
@@ -316,7 +310,8 @@ Instructions for the AI agent...`}
               <button
                 className="
                   flex flex-1 flex-col items-center gap-2 rounded-lg border-2
-                  border-dashed border-border-strong p-6 text-text-tertiary transition
+                  border-dashed border-border-strong p-6 text-text-tertiary
+                  transition
                   hover:border-accent-border hover:text-accent-text
                 "
                 onClick={() => folderInputRef.current?.click()}
@@ -329,7 +324,8 @@ Instructions for the AI agent...`}
               <button
                 className="
                   flex flex-1 flex-col items-center gap-2 rounded-lg border-2
-                  border-dashed border-border-strong p-6 text-text-tertiary transition
+                  border-dashed border-border-strong p-6 text-text-tertiary
+                  transition
                   hover:border-accent-border hover:text-accent-text
                 "
                 onClick={() => zipInputRef.current?.click()}
@@ -341,24 +337,33 @@ Instructions for the AI agent...`}
               </button>
             </div>
           ) : (
-            <div className="rounded-lg border border-border bg-surface-secondary p-3">
+            <div className="
+              rounded-lg border border-border bg-surface-secondary p-3
+            ">
               <div className="mb-2 flex items-center justify-between">
                 <span className="
-                  flex items-center gap-1.5 text-sm font-medium text-text-secondary
+                  flex items-center gap-1.5 text-sm font-medium
+                  text-text-secondary
                 ">
                   <FolderOpen className="size-4" />
                   {uploadedFiles.length} file{uploadedFiles.length !== 1 && 's'}
                 </span>
                 <span className="flex gap-2">
                   <button
-                    className="text-xs text-accent-text hover:underline"
+                    className="
+                      text-xs text-accent-text
+                      hover:underline
+                    "
                     onClick={() => folderInputRef.current?.click()}
                     type="button"
                   >
                     Re-select folder
                   </button>
                   <button
-                    className="text-xs text-accent-text hover:underline"
+                    className="
+                      text-xs text-accent-text
+                      hover:underline
+                    "
                     onClick={() => zipInputRef.current?.click()}
                     type="button"
                   >
@@ -400,8 +405,8 @@ Instructions for the AI agent...`}
         {errorMsg && (
           <div
             className="
-              rounded-lg border border-status-error-border bg-status-error-bg p-3 text-sm
-              text-status-error
+              rounded-lg border border-status-error-border bg-status-error-bg
+              p-3 text-sm text-status-error
             "
           >
             {errorMsg}
@@ -428,4 +433,29 @@ function fileToBase64(file: globalThis.File): Promise<string> {
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
+}
+
+function sanitizeName(raw: string): string {
+  return raw
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+function tryParseFrontmatter(files: UploadedFile[]): {
+  description?: string;
+  error?: string;
+  name?: string;
+} {
+  const skillMd = files.find((f) => f.path === 'SKILL.md');
+  if (!skillMd) return { error: 'A SKILL.md file is required' };
+
+  try {
+    const decoded = atob(skillMd.content);
+    const { frontmatter } = parseSkillMd(decoded);
+    return { description: frontmatter.description, name: frontmatter.name };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Invalid SKILL.md' };
+  }
 }

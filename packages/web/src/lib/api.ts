@@ -4,7 +4,6 @@ import type {
   CreateProject,
   CreateSkill,
   ForkSkill,
-  RateSkill,
 } from '@emergent/shared';
 
 import { hc } from 'hono/client';
@@ -97,13 +96,6 @@ export async function fetchSkills(params?: {
 
 export async function forkSkill(id: string, data: ForkSkill) {
   const res = await client.api.skills[':id'].fork.$post({ json: data, param: { id } });
-  await throwIfNotOk(res);
-  const json = await res.json();
-  return json.data;
-}
-
-export async function rateSkill(id: string, data: RateSkill) {
-  const res = await client.api.skills[':id'].rate.$post({ json: data, param: { id } });
   await throwIfNotOk(res);
   const json = await res.json();
   return json.data;

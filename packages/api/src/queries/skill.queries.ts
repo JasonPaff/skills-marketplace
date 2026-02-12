@@ -55,21 +55,5 @@ export function createSkillQueries(db: Database) {
 
       return db.select().from(skills).where(where).orderBy(skills.name);
     },
-
-    async updateSkillRating(
-      id: string,
-      data: { averageRating: number; ratingCount: number; totalRating: number },
-    ) {
-      const [updated] = await db
-        .update(skills)
-        .set({
-          averageRating: data.averageRating,
-          ratingCount: data.ratingCount,
-          totalRating: data.totalRating,
-        })
-        .where(eq(skills.id, id))
-        .returning();
-      return updated;
-    },
   };
 }

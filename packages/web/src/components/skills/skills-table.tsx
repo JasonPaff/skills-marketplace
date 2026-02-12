@@ -20,8 +20,6 @@ import { useSkillsSearchParams } from '@/lib/search-params';
 import { useDebouncedValue } from '@/lib/use-debounced-value';
 import { formatDate, formatDownloads } from '@/lib/utils/format';
 
-import { StarRating } from './star-rating';
-
 // ─── Column Definitions ──────────────────────────────────────────
 
 const columns: ColumnDef<Skill, unknown>[] = [
@@ -33,7 +31,9 @@ const columns: ColumnDef<Skill, unknown>[] = [
         onClick={row.getToggleExpandedHandler()}
       >
         <ChevronRight
-          className="size-4 text-text-tertiary transition-transform duration-200"
+          className="
+            size-4 text-text-tertiary transition-transform duration-200
+          "
           style={{ transform: row.getIsExpanded() ? 'rotate(90deg)' : undefined }}
         />
       </button>
@@ -63,11 +63,6 @@ const columns: ColumnDef<Skill, unknown>[] = [
     accessorKey: 'version',
     cell: ({ getValue }) => `v${getValue<string>()}`,
     header: 'Version',
-  },
-  {
-    accessorKey: 'averageRating',
-    cell: ({ getValue }) => <StarRating rating={Number(getValue<number>())} />,
-    header: 'Rating',
   },
   {
     accessorKey: 'downloadCount',
@@ -113,10 +108,6 @@ function SkillDetailPanel({ row }: { row: Row<Skill> }) {
           <span className="font-medium text-text-tertiary">GitHub Path:</span>{' '}
           <span className="text-text-secondary">{skill.githubPath}</span>
         </div>
-        <div>
-          <span className="font-medium text-text-tertiary">Rating:</span>{' '}
-          <StarRating rating={Number(skill.averageRating)} />
-        </div>
       </div>
 
       <div className="flex gap-3 pt-2">
@@ -152,7 +143,7 @@ const downloadThresholds = [
 // ─── SkillsTable Component ───────────────────────────────────────
 
 export function SkillsTable() {
-  const [{ downloads, rating, search }, setParams] = useSkillsSearchParams();
+  const [{ downloads, search }, setParams] = useSkillsSearchParams();
   const [localSearch, setLocalSearch] = useState(search ?? '');
   const debouncedSearch = useDebouncedValue(localSearch, 300);
   const { data: skills, error, isLoading } = useSkills({ search: debouncedSearch || undefined });
@@ -165,11 +156,10 @@ export function SkillsTable() {
   const filteredSkills = useMemo(() => {
     if (!skills) return [];
     return skills.filter((skill) => {
-      if (rating && Number(skill.averageRating) < rating) return false;
       if (downloads && skill.downloadCount < downloads) return false;
       return true;
     });
-  }, [skills, rating, downloads]);
+  }, [skills, downloads]);
 
   if (isLoading) {
     return <div className="py-12 text-center text-text-tertiary">Loading skills...</div>;
@@ -190,17 +180,6 @@ export function SkillsTable() {
           type="text"
           value={localSearch}
         />
-        <Select
-          onChange={(e) => setParams({ rating: Number(e.target.value) || null })}
-          value={rating ?? ''}
-        >
-          <option value="">Min Rating</option>
-          {[1, 2, 3, 4, 5].map((r) => (
-            <option key={r} value={r}>
-              {r}+ Stars
-            </option>
-          ))}
-        </Select>
         <Select
           onChange={(e) => setParams({ downloads: Number(e.target.value) || null })}
           value={downloads ?? ''}

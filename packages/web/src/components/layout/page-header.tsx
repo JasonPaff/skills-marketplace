@@ -16,7 +16,8 @@ export function PageHeader({ action, description, title }: PageHeaderProps) {
       {action && (
         <Link
           className="
-            rounded-lg bg-accent px-4 py-2 text-sm font-medium text-text-on-accent
+            rounded-lg bg-accent px-4 py-2 text-sm font-medium
+            text-text-on-accent
             hover:bg-accent-hover
           "
           href={action.href}

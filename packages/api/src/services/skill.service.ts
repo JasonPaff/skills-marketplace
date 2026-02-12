@@ -1,7 +1,7 @@
 import type { CreateSkill, ForkSkill, skillsQuerySchema } from '@emergent/shared';
-import { parseSkillMd } from '@emergent/shared';
 import type { z } from 'zod';
 
+import { parseSkillMd } from '@emergent/shared';
 import { HTTPException } from 'hono/http-exception';
 
 import type { GitHubClient } from '../lib/github.js';
@@ -128,26 +128,6 @@ export function createSkillService(queries: SkillQueries, github: GitHubClient) 
 
     async getSkills(query?: SkillsQuery) {
       return queries.selectSkills(query);
-    },
-
-    async rateSkill(id: string, rating: number) {
-      const skill = await queries.selectSkillById(id);
-
-      if (!skill) {
-        throw new HTTPException(404, { message: 'Skill not found' });
-      }
-
-      const newTotalRating = skill.totalRating + rating;
-      const newRatingCount = skill.ratingCount + 1;
-      const newAverageRating = newTotalRating / newRatingCount;
-
-      const updated = await queries.updateSkillRating(id, {
-        averageRating: newAverageRating,
-        ratingCount: newRatingCount,
-        totalRating: newTotalRating,
-      });
-
-      return updated;
     },
   };
 }

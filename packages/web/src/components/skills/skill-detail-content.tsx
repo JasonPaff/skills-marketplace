@@ -2,7 +2,6 @@
 
 import { ErrorBoundary } from 'react-error-boundary';
 
-import { RatingForm } from '@/components/forms/rating-form';
 import { ErrorAlert } from '@/components/layout/error-alert';
 import { useSkill } from '@/lib/query/use-skill';
 
@@ -39,7 +38,6 @@ function SkillDetailInner({ id }: SkillDetailContentProps) {
       <p className="mb-6 leading-relaxed text-text-secondary">{skill.description}</p>
       <SkillStats skill={skill} />
       <SkillMetadata skill={skill} />
-      <RatingForm skillId={id} />
     </div>
   );
 }

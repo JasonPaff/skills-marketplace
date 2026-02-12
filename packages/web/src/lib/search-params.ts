@@ -4,7 +4,6 @@ import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
 
 const skillsSearchParamsParsers = {
   downloads: parseAsInteger,
-  rating: parseAsInteger,
   search: parseAsString.withDefault(''),
 };
 

@@ -3,7 +3,6 @@ import {
   boolean,
   integer,
   pgTable,
-  real,
   text,
   timestamp,
   uniqueIndex,
@@ -48,15 +47,12 @@ export const projectsRelations = relations(projects, ({ many, one }) => ({
 // ─── Skills ───────────────────────────────────────────────────────
 
 export const skills = pgTable('skills', {
-  averageRating: real('average_rating').default(0).notNull(),
   description: varchar('description', { length: 500 }).notNull(),
   downloadCount: integer('download_count').default(0).notNull(),
   githubPath: varchar('github_path', { length: 500 }).notNull(),
   id: uuid('id').primaryKey().defaultRandom(),
   name: varchar('name', { length: 100 }).notNull(),
   parentSkillId: uuid('parent_skill_id'),
-  ratingCount: integer('rating_count').default(0).notNull(),
-  totalRating: integer('total_rating').default(0).notNull(),
   uploadedAt: timestamp('uploaded_at', { withTimezone: true }).defaultNow().notNull(),
   version: varchar('version', { length: 20 }).default('1.0.0').notNull(),
 });

@@ -32,9 +32,6 @@ CREATE TABLE "skills" (
 	"uploaded_by" varchar(100) NOT NULL,
 	"uploaded_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"download_count" integer DEFAULT 0 NOT NULL,
-	"total_rating" integer DEFAULT 0 NOT NULL,
-	"rating_count" integer DEFAULT 0 NOT NULL,
-	"average_rating" numeric(3, 2) DEFAULT '0' NOT NULL,
 	"is_global" boolean DEFAULT true NOT NULL,
 	"parent_skill_id" uuid,
 	"version" varchar(20) DEFAULT '1.0.0' NOT NULL
