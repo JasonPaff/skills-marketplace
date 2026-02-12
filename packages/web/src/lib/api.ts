@@ -1,9 +1,16 @@
 import type { AppType } from '@emergent/api';
-import type { CreateClient, CreateProject, CreateSkill, ForkSkill } from '@emergent/shared';
+import type { CreateBatchUpload, CreateClient, CreateProject, CreateSkill, ForkSkill } from '@emergent/shared';
 
 import { hc } from 'hono/client';
 
 const client = hc<AppType>(process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8787');
+
+export async function createBatchUpload(data: CreateBatchUpload) {
+  const res = await client.api.upload.batch.$post({ json: data });
+  await throwIfNotOk(res);
+  const json = await res.json();
+  return json.data;
+}
 
 export async function createClient(data: CreateClient) {
   const res = await client.api.clients.$post({ json: data });

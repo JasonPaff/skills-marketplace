@@ -13,6 +13,8 @@ async function seed() {
   // Clear existing data (order matters for FK constraints)
   await db.delete(schema.projectSkills);
   await db.delete(schema.skills);
+  await db.delete(schema.agents);
+  await db.delete(schema.rules);
   await db.delete(schema.projects);
   await db.delete(schema.clients);
 
@@ -160,6 +162,80 @@ async function seed() {
   ]);
 
   console.log(`  Created ${2} project-skill links`);
+
+  // Create agents
+  const agentData: {
+    color?: string;
+    description: string;
+    downloadCount?: number;
+    githubPath: string;
+    model?: string;
+    name: string;
+    tools?: string[];
+  }[] = [
+    {
+      color: '#4A90D9',
+      description:
+        'An expert code review agent that analyzes pull requests for bugs, performance issues, and style violations.',
+      downloadCount: 34,
+      githubPath: 'agents/code-review-assistant',
+      model: 'claude-sonnet-4-20250514',
+      name: 'code-review-assistant',
+      tools: ['Read', 'Grep', 'Glob'],
+    },
+    {
+      description:
+        'Generates comprehensive API documentation from source code, including endpoint descriptions, request/response schemas, and usage examples.',
+      downloadCount: 15,
+      githubPath: 'agents/api-docs-generator',
+      name: 'api-docs-generator',
+      tools: ['Read', 'Glob', 'Write'],
+    },
+    {
+      color: '#E57373',
+      description:
+        'Orchestrates database migration workflows including schema diffing, migration generation, and rollback planning.',
+      downloadCount: 7,
+      githubPath: 'agents/db-migration-planner',
+      model: 'claude-opus-4-20250514',
+      name: 'db-migration-planner',
+      tools: ['Read', 'Bash', 'Write', 'Grep'],
+    },
+  ];
+
+  const agents = await db.insert(schema.agents).values(agentData).returning();
+
+  console.log(`  Created ${agents.length} agents`);
+
+  // Create rules
+  const ruleData: {
+    description: string;
+    downloadCount?: number;
+    githubPath: string;
+    name: string;
+    paths?: string[];
+  }[] = [
+    {
+      description:
+        'Enforce consistent import ordering: external packages first, then internal modules, then relative imports, each group separated by a blank line.',
+      downloadCount: 42,
+      githubPath: 'rules/import-ordering',
+      name: 'import-ordering',
+      paths: ['**/*.ts', '**/*.tsx'],
+    },
+    {
+      description:
+        'All API route handlers must validate request bodies using Zod schemas and return typed responses with proper HTTP status codes.',
+      downloadCount: 19,
+      githubPath: 'rules/api-validation-required',
+      name: 'api-validation-required',
+      paths: ['src/routes/**', 'src/api/**'],
+    },
+  ];
+
+  const rules = await db.insert(schema.rules).values(ruleData).returning();
+
+  console.log(`  Created ${rules.length} rules`);
   console.log('Seed complete!');
 }
 

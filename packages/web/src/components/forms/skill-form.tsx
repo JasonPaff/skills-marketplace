@@ -1,127 +1,145 @@
 'use client';
 
+import type { CreateBatchUpload } from '@emergent/shared';
+
 import { createSkillSchema, parseSkillMd } from '@emergent/shared';
-import { useForm } from '@tanstack/react-form';
-import { Archive, ChevronDown, ChevronRight, File, FolderOpen, Trash2, Upload } from 'lucide-react';
+import {
+  AlertCircle,
+  Archive,
+  CheckCircle2,
+  ChevronDown,
+  ChevronRight,
+  File,
+  FolderOpen,
+  Upload,
+  XCircle,
+} from 'lucide-react';
 import { $path } from 'next-typesafe-url';
 import { useRouter } from 'next/navigation';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { useBatchUpload } from '@/lib/query/use-batch-upload';
 import { useCreateSkill } from '@/lib/query/use-create-skill';
-import { extractZipFiles, getZipRootName } from '@/lib/utils/zip';
+import {
+  type BatchStructure,
+  type DetectedStructure,
+  detectFolderStructure,
+  type GroupedItem,
+  type UploadedFile,
+} from '@/lib/utils/folder-detection';
+import { extractZipFiles } from '@/lib/utils/zip';
 
 import { FormField } from './form-field';
 
-interface UploadedFile {
-  content: string;
-  path: string;
-}
+// ─── Component ───────────────────────────────────────────────────
 
 export function SkillForm() {
   const router = useRouter();
   const [errorMsg, setErrorMsg] = useState('');
   const [fileError, setFileError] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [detectedStructure, setDetectedStructure] = useState<DetectedStructure | null>(null);
   const [guideOpen, setGuideOpen] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    agents: true,
+    rules: true,
+    skills: true,
+  });
   const folderInputRef = useRef<HTMLInputElement>(null);
   const zipInputRef = useRef<HTMLInputElement>(null);
 
-  const form = useForm({
-    defaultValues: {
-      description: '',
-      name: '',
-    },
-    onSubmit: ({ value }) => {
-      setErrorMsg('');
-      const result = createSkillSchema.safeParse({
-        ...value,
-        files: uploadedFiles,
-      });
-      if (!result.success) {
-        const firstError = result.error.issues[0];
-        setErrorMsg(firstError?.message ?? 'Validation failed');
-        return;
-      }
-      createMutation.mutate(result.data);
-    },
-  });
+  const isBatchMode = detectedStructure?.type === 'batch';
 
-  const autoFillFromFiles = useCallback(
-    (files: UploadedFile[], folderName?: string) => {
-      setFileError('');
+  // ── Single-skill frontmatter extraction ─────────────────────────
 
-      // Auto-fill name from folder/zip name
-      if (folderName) {
-        const sanitized = sanitizeName(folderName);
-        if (sanitized && !form.getFieldValue('name')) {
-          form.setFieldValue('name', sanitized);
-        }
-      }
+  const singleSkillInfo = useMemo(() => {
+    if (detectedStructure?.type !== 'single-skill') return null;
+    return tryParseFrontmatter(detectedStructure.files);
+  }, [detectedStructure]);
 
-      // Validate and auto-fill from frontmatter
-      const result = tryParseFrontmatter(files);
+  // ── Batch mode validation ───────────────────────────────────────
+
+  const batchHasErrors = useMemo(() => {
+    if (detectedStructure?.type !== 'batch') return false;
+    const allItems = [
+      ...detectedStructure.skills,
+      ...detectedStructure.agents,
+      ...detectedStructure.rules,
+    ];
+    return allItems.some((item) => !item.frontmatter.valid);
+  }, [detectedStructure]);
+
+  const batchTotalCount = useMemo(() => {
+    if (detectedStructure?.type !== 'batch') return 0;
+    return (
+      detectedStructure.skills.length +
+      detectedStructure.agents.length +
+      detectedStructure.rules.length
+    );
+  }, [detectedStructure]);
+
+  // ── File selection handlers ─────────────────────────────────────
+
+  const processFiles = useCallback((files: UploadedFile[]) => {
+    setFileError('');
+    setErrorMsg('');
+    setUploadedFiles(files);
+
+    const structure = detectFolderStructure(files);
+    setDetectedStructure(structure);
+
+    if (structure.type === 'single-skill') {
+      const result = tryParseFrontmatter(structure.files);
       if (result.error) {
         setFileError(result.error);
-      } else {
-        if (result.description && !form.getFieldValue('description')) {
-          form.setFieldValue('description', result.description.slice(0, 500));
-        }
       }
-    },
-    [form],
-  );
+    }
+  }, []);
 
   const handleFolderSelect = useCallback(
     async (fileList: FileList) => {
       const files = await Promise.all(
         Array.from(fileList).map(async (file) => {
           const base64 = await fileToBase64(file);
-          // webkitRelativePath gives "folder-name/SKILL.md" — strip the root folder
           const parts = file.webkitRelativePath.split('/');
           const relativePath = parts.slice(1).join('/');
           return { content: base64, path: relativePath };
         }),
       );
-      // Filter out empty paths (e.g. the folder itself)
       const filtered = files.filter((f) => f.path.length > 0);
-      setUploadedFiles(filtered);
-
-      // Extract folder name from first file's webkitRelativePath
-      const firstFile = Array.from(fileList)[0];
-      const folderName = firstFile?.webkitRelativePath.split('/')[0];
-      autoFillFromFiles(filtered, folderName);
+      processFiles(filtered);
     },
-    [autoFillFromFiles],
+    [processFiles],
   );
 
   const handleZipSelect = useCallback(
     async (file: globalThis.File) => {
       try {
         const files = await extractZipFiles(file);
-        setUploadedFiles(files);
-
-        // Get root name for auto-fill
-        const rootName = getZipRootName(
-          file,
-          files.map((f) => f.path),
-        );
-        autoFillFromFiles(files, rootName);
+        processFiles(files);
       } catch {
         setFileError('Failed to read zip file');
       }
     },
-    [autoFillFromFiles],
+    [processFiles],
   );
 
-  const removeFile = useCallback((path: string) => {
-    setUploadedFiles((prev) => prev.filter((f) => f.path !== path));
+  const clearFiles = useCallback(() => {
+    setUploadedFiles([]);
+    setDetectedStructure(null);
+    setFileError('');
+    setErrorMsg('');
   }, []);
 
-  const hasSkillMd = uploadedFiles.some((f) => f.path === 'SKILL.md');
+  // ── Section toggle ──────────────────────────────────────────────
+
+  const toggleSection = useCallback((section: string) => {
+    setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
+  }, []);
+
+  // ── Mutations ───────────────────────────────────────────────────
 
   const createMutation = useCreateSkill({
     onError: (err) => {
@@ -132,191 +150,120 @@ export function SkillForm() {
     },
   });
 
-  const filesError =
+  const batchMutation = useBatchUpload({
+    onError: (err) => {
+      setErrorMsg(err.message);
+    },
+    onSuccess: () => {
+      router.push($path({ route: '/' }));
+    },
+  });
+
+  const isPending = createMutation.isPending || batchMutation.isPending;
+
+  // ── Submit handler ──────────────────────────────────────────────
+
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      setErrorMsg('');
+
+      if (!detectedStructure) {
+        setErrorMsg('Please select files to upload');
+        return;
+      }
+
+      if (detectedStructure.type === 'batch') {
+        // Build the batch upload payload
+        const batch = detectedStructure as BatchStructure;
+        const payload: CreateBatchUpload = {};
+
+        if (batch.skills.length > 0) {
+          payload.skills = batch.skills.map((item) => ({
+            description: item.frontmatter.description ?? '',
+            files: item.files,
+            name: sanitizeName(item.frontmatter.name ?? item.name),
+          }));
+        }
+
+        if (batch.agents.length > 0) {
+          payload.agents = batch.agents.map((item) => ({
+            description: item.frontmatter.description ?? '',
+            files: item.files,
+            name: sanitizeName(item.frontmatter.name ?? item.name),
+          }));
+        }
+
+        if (batch.rules.length > 0) {
+          payload.rules = batch.rules.map((item) => ({
+            description: item.frontmatter.description ?? '',
+            files: item.files,
+            name: sanitizeName(item.frontmatter.name ?? item.name),
+          }));
+        }
+
+        batchMutation.mutate(payload);
+      } else {
+        // Single-skill mode
+        const info = tryParseFrontmatter(detectedStructure.files);
+        if (info.error) {
+          setErrorMsg(info.error);
+          return;
+        }
+
+        const skillData = {
+          description: info.description ?? '',
+          files: detectedStructure.files,
+          name: sanitizeName(info.name ?? ''),
+        };
+
+        const result = createSkillSchema.safeParse(skillData);
+        if (!result.success) {
+          const firstError = result.error.issues[0];
+          setErrorMsg(firstError?.message ?? 'Validation failed');
+          return;
+        }
+
+        createMutation.mutate(result.data);
+      }
+    },
+    [detectedStructure, batchMutation, createMutation],
+  );
+
+  // ── Derived state ───────────────────────────────────────────────
+
+  const hasSkillMd =
+    detectedStructure?.type === 'single-skill' &&
+    detectedStructure.files.some((f) => f.path === 'SKILL.md');
+
+  const singleSkillFilesError =
     fileError ||
-    (uploadedFiles.length > 0 && !hasSkillMd ? 'A SKILL.md file is required' : undefined);
+    (detectedStructure?.type === 'single-skill' &&
+    detectedStructure.files.length > 0 &&
+    !hasSkillMd
+      ? 'A SKILL.md file is required'
+      : undefined);
+
+  const isSubmitDisabled =
+    isPending ||
+    uploadedFiles.length === 0 ||
+    (isBatchMode && (batchHasErrors || batchTotalCount === 0)) ||
+    (!isBatchMode && !!singleSkillFilesError);
+
+  // ── Render ──────────────────────────────────────────────────────
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        form.handleSubmit();
-      }}
-    >
+    <form onSubmit={handleSubmit}>
       <Card className="space-y-5" padding="lg">
-        {/* Collapsible Skill Format Guide */}
-        <div className="rounded-lg border border-border bg-surface-secondary">
-          <button
-            className="
-              flex w-full items-center gap-2 px-4 py-3 text-left text-sm
-              font-medium text-text-secondary
-            "
-            onClick={() => setGuideOpen(!guideOpen)}
-            type="button"
-          >
-            {guideOpen ? (
-              <ChevronDown className="size-4" />
-            ) : (
-              <ChevronRight
-                className="
-              size-4
-            "
-              />
-            )}
-            Skill Format Guide
-          </button>
-          {guideOpen && (
-            <div
-              className="
-              border-t border-border px-4 pt-3 pb-4 text-sm text-text-secondary
-            "
-            >
-              <p className="mb-2">
-                A skill is a folder containing a{' '}
-                <code
-                  className="
-                  rounded-sm bg-surface-tertiary px-1 py-0.5 text-xs
-                "
-                >
-                  SKILL.md
-                </code>{' '}
-                file with YAML frontmatter:
-              </p>
-              <pre
-                className="
-                mb-3 overflow-x-auto rounded-md bg-gray-800 p-3 text-xs
-                text-gray-100
-                dark:bg-gray-950
-              "
-              >
-                {`---
-name: my-skill-name
-description: A short description of what this skill does
----
+        {/* Collapsible Format Guide */}
+        <FormatGuide guideOpen={guideOpen} onToggle={() => setGuideOpen(!guideOpen)} />
 
-# My Skill
-
-Instructions for the AI agent...`}
-              </pre>
-              <ul
-                className="
-                list-inside list-disc space-y-1 text-xs text-text-tertiary
-              "
-              >
-                <li>
-                  The{' '}
-                  <code
-                    className="
-                  rounded-sm bg-surface-tertiary px-1 py-0.5
-                "
-                  >
-                    name
-                  </code>{' '}
-                  and{' '}
-                  <code
-                    className="
-                  rounded-sm bg-surface-tertiary px-1 py-0.5
-                "
-                  >
-                    description
-                  </code>{' '}
-                  fields are required in the frontmatter
-                </li>
-                <li>
-                  Additional files (templates, configs, etc.) can be included alongside SKILL.md
-                </li>
-                <li>
-                  See the full standard at{' '}
-                  <a
-                    className="text-accent-text underline"
-                    href="https://agentskills.io"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                  >
-                    AgentSkills.io
-                  </a>
-                </li>
-              </ul>
-            </div>
-          )}
-        </div>
-
-        <form.Field
-          name="name"
-          validators={{
-            onBlur: createSkillSchema.shape.name,
-            onChange: createSkillSchema.shape.name,
-            onSubmit: createSkillSchema.shape.name,
-          }}
+        {/* File Upload Area */}
+        <FormField
+          error={(!isBatchMode && singleSkillFilesError) || undefined}
+          label="Upload Files"
+          required
         >
-          {(field) => (
-            <FormField
-              error={field.state.meta.errors.join(', ') || undefined}
-              hint="Lowercase letters, numbers, and hyphens only"
-              htmlFor="skill-name"
-              label="Skill Name"
-              required
-            >
-              {({ ariaDescribedBy, ariaInvalid, ariaRequired }) => (
-                <Input
-                  aria-describedby={ariaDescribedBy}
-                  aria-invalid={ariaInvalid}
-                  aria-required={ariaRequired}
-                  className="w-full"
-                  error={field.state.meta.errors.length > 0}
-                  id="skill-name"
-                  name={field.name}
-                  onBlur={field.handleBlur}
-                  onChange={(e) =>
-                    field.handleChange(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))
-                  }
-                  placeholder="my-awesome-skill"
-                  type="text"
-                  value={field.state.value}
-                />
-              )}
-            </FormField>
-          )}
-        </form.Field>
-
-        <form.Field
-          name="description"
-          validators={{
-            onBlur: createSkillSchema.shape.description,
-            onChange: createSkillSchema.shape.description,
-            onSubmit: createSkillSchema.shape.description,
-          }}
-        >
-          {(field) => (
-            <FormField
-              error={field.state.meta.errors.join(', ') || undefined}
-              hint={`${field.state.value.length}/500`}
-              htmlFor="skill-description"
-              label="Description"
-              required
-            >
-              {({ ariaDescribedBy, ariaInvalid, ariaRequired }) => (
-                <Textarea
-                  aria-describedby={ariaDescribedBy}
-                  aria-invalid={ariaInvalid}
-                  aria-required={ariaRequired}
-                  className="w-full"
-                  error={field.state.meta.errors.length > 0}
-                  id="skill-description"
-                  maxLength={500}
-                  name={field.name}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  placeholder="Describe what this skill does..."
-                  rows={3}
-                  value={field.state.value}
-                />
-              )}
-            </FormField>
-          )}
-        </form.Field>
-
-        <FormField error={filesError || undefined} label="Skill Files" required>
           {/* Hidden folder input */}
           <input
             className="hidden"
@@ -355,7 +302,7 @@ Instructions for the AI agent...`}
               >
                 <Upload className="size-8" />
                 <span className="text-sm font-medium">Browse Folder</span>
-                <span className="text-xs">Select a skill folder</span>
+                <span className="text-xs">Select a skill or .claude folder</span>
               </button>
               <button
                 className="
@@ -373,20 +320,17 @@ Instructions for the AI agent...`}
               </button>
             </div>
           ) : (
-            <div
-              className="
-              rounded-lg border border-border bg-surface-secondary p-3
-            "
-            >
-              <div className="mb-2 flex items-center justify-between">
+            <div className="space-y-3">
+              {/* Re-select controls */}
+              <div className="flex items-center justify-between">
                 <span
                   className="
-                  flex items-center gap-1.5 text-sm font-medium
-                  text-text-secondary
-                "
+                    flex items-center gap-1.5 text-sm font-medium
+                    text-text-secondary
+                  "
                 >
                   <FolderOpen className="size-4" />
-                  {uploadedFiles.length} file{uploadedFiles.length !== 1 && 's'}
+                  {uploadedFiles.length} file{uploadedFiles.length !== 1 && 's'} selected
                 </span>
                 <span className="flex gap-2">
                   <button
@@ -409,39 +353,40 @@ Instructions for the AI agent...`}
                   >
                     Re-upload zip
                   </button>
+                  <button
+                    className="
+                      text-xs text-status-error
+                      hover:underline
+                    "
+                    onClick={clearFiles}
+                    type="button"
+                  >
+                    Clear
+                  </button>
                 </span>
               </div>
-              <ul className="space-y-1">
-                {uploadedFiles.map((file) => (
-                  <li
-                    className="
-                      flex items-center justify-between rounded-sm px-2 py-1
-                      text-sm text-text-secondary
-                      hover:bg-surface-tertiary
-                    "
-                    key={file.path}
-                  >
-                    <span className="flex items-center gap-1.5">
-                      <File className="size-3.5 text-text-quaternary" />
-                      {file.path}
-                    </span>
-                    <button
-                      className="
-                        text-text-quaternary
-                        hover:text-status-error
-                      "
-                      onClick={() => removeFile(file.path)}
-                      type="button"
-                    >
-                      <Trash2 className="size-3.5" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
+
+              {/* Batch Mode Preview */}
+              {detectedStructure?.type === 'batch' && (
+                <BatchPreview
+                  expandedSections={expandedSections}
+                  structure={detectedStructure}
+                  toggleSection={toggleSection}
+                />
+              )}
+
+              {/* Single-Skill Mode File List */}
+              {detectedStructure?.type === 'single-skill' && (
+                <SingleSkillPreview
+                  files={detectedStructure.files}
+                  info={singleSkillInfo}
+                />
+              )}
             </div>
           )}
         </FormField>
 
+        {/* Error Display */}
         {errorMsg && (
           <div
             className="
@@ -453,19 +398,149 @@ Instructions for the AI agent...`}
           </div>
         )}
 
-        <Button fullWidth loading={createMutation.isPending} type="submit">
-          Create Skill
+        {/* Submit Button */}
+        <Button disabled={isSubmitDisabled} fullWidth loading={isPending} type="submit">
+          {isBatchMode ? `Upload Batch (${batchTotalCount} items)` : 'Create Skill'}
         </Button>
       </Card>
     </form>
   );
 }
 
+// ─── Batch Preview Component ─────────────────────────────────────
+
+function BatchItem({ item }: { item: GroupedItem }) {
+  const isValid = item.frontmatter.valid;
+
+  return (
+    <li
+      className="
+        flex items-start justify-between rounded-md px-3 py-2 text-sm
+        hover:bg-surface-tertiary
+      "
+    >
+      <div className="flex items-start gap-2">
+        {isValid ? (
+          <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-status-success" />
+        ) : (
+          <XCircle className="mt-0.5 size-4 shrink-0 text-status-error" />
+        )}
+        <div className="min-w-0">
+          <div className="font-medium text-text-primary">
+            {item.frontmatter.name ?? item.name}
+          </div>
+          {item.frontmatter.description && (
+            <div className="mt-0.5 line-clamp-2 text-xs text-text-tertiary">
+              {item.frontmatter.description}
+            </div>
+          )}
+          {!isValid && item.frontmatter.errors && (
+            <div className="mt-1 text-xs text-status-error">
+              {item.frontmatter.errors.join('; ')}
+            </div>
+          )}
+        </div>
+      </div>
+      <span className="ml-2 shrink-0 text-xs text-text-quaternary">
+        {item.files.length} file{item.files.length !== 1 && 's'}
+      </span>
+    </li>
+  );
+}
+
+// ─── Batch Item Component ────────────────────────────────────────
+
+function BatchPreview({
+  expandedSections,
+  structure,
+  toggleSection,
+}: {
+  expandedSections: Record<string, boolean>;
+  structure: BatchStructure;
+  toggleSection: (section: string) => void;
+}) {
+  const sections: Array<{ items: GroupedItem[]; key: string; label: string }> = [
+    { items: structure.skills, key: 'skills', label: 'Skills' },
+    { items: structure.agents, key: 'agents', label: 'Agents' },
+    { items: structure.rules, key: 'rules', label: 'Rules' },
+  ];
+
+  const totalCount = structure.skills.length + structure.agents.length + structure.rules.length;
+  const allItems = [...structure.skills, ...structure.agents, ...structure.rules];
+  const errorCount = allItems.filter((item) => !item.frontmatter.valid).length;
+
+  // Build summary parts
+  const summaryParts: string[] = [];
+  if (structure.skills.length > 0) {
+    summaryParts.push(`${structure.skills.length} Skill${structure.skills.length !== 1 ? 's' : ''}`);
+  }
+  if (structure.agents.length > 0) {
+    summaryParts.push(`${structure.agents.length} Agent${structure.agents.length !== 1 ? 's' : ''}`);
+  }
+  if (structure.rules.length > 0) {
+    summaryParts.push(`${structure.rules.length} Rule${structure.rules.length !== 1 ? 's' : ''}`);
+  }
+
+  return (
+    <div className="rounded-lg border border-border bg-surface-secondary">
+      {/* Summary Header */}
+      <div className="flex items-center justify-between px-4 py-3">
+        <span className="
+          flex items-center gap-2 text-sm font-medium text-text-primary
+        ">
+          {errorCount > 0 ? (
+            <AlertCircle className="size-4 text-status-error" />
+          ) : (
+            <CheckCircle2 className="size-4 text-status-success" />
+          )}
+          {summaryParts.join(', ')} detected
+        </span>
+        <span className="text-xs text-text-quaternary">
+          {totalCount} total{errorCount > 0 && ` \u00B7 ${errorCount} with errors`}
+        </span>
+      </div>
+
+      {/* Sections */}
+      {sections
+        .filter((s) => s.items.length > 0)
+        .map((section) => (
+          <div className="border-t border-border" key={section.key}>
+            <button
+              className="
+                flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm
+                font-medium text-text-secondary
+                hover:bg-surface-tertiary
+              "
+              onClick={() => toggleSection(section.key)}
+              type="button"
+            >
+              {expandedSections[section.key] ? (
+                <ChevronDown className="size-3.5" />
+              ) : (
+                <ChevronRight className="size-3.5" />
+              )}
+              {section.label}
+              <span className="text-xs text-text-quaternary">({section.items.length})</span>
+            </button>
+            {expandedSections[section.key] && (
+              <ul className="space-y-0.5 px-4 pb-3">
+                {section.items.map((item) => (
+                  <BatchItem item={item} key={item.name} />
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
+    </div>
+  );
+}
+
+// ─── Single-Skill Preview Component ─────────────────────────────
+
 function fileToBase64(file: globalThis.File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
-      // readAsDataURL returns "data:<mime>;base64,<data>" — strip the prefix
       const dataUrl = reader.result as string;
       const base64 = dataUrl.split(',')[1] ?? '';
       resolve(base64);
@@ -475,12 +550,218 @@ function fileToBase64(file: globalThis.File): Promise<string> {
   });
 }
 
+// ─── Format Guide Component ──────────────────────────────────────
+
+function FormatGuide({
+  guideOpen,
+  onToggle,
+}: {
+  guideOpen: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <div className="rounded-lg border border-border bg-surface-secondary">
+      <button
+        className="
+          flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-medium
+          text-text-secondary
+        "
+        onClick={onToggle}
+        type="button"
+      >
+        {guideOpen ? (
+          <ChevronDown className="size-4" />
+        ) : (
+          <ChevronRight className="size-4" />
+        )}
+        Upload Format Guide
+      </button>
+      {guideOpen && (
+        <div
+          className="
+            border-t border-border px-4 pt-3 pb-4 text-sm text-text-secondary
+          "
+        >
+          <p className="mb-3">
+            Upload a single skill folder or a{' '}
+            <code className="rounded-sm bg-surface-tertiary px-1 py-0.5 text-xs">.claude</code>
+            {' '}folder containing{' '}
+            <code className="rounded-sm bg-surface-tertiary px-1 py-0.5 text-xs">skills/</code>,{' '}
+            <code className="rounded-sm bg-surface-tertiary px-1 py-0.5 text-xs">agents/</code>,
+            {' '}and/or{' '}
+            <code className="rounded-sm bg-surface-tertiary px-1 py-0.5 text-xs">rules/</code>
+            {' '}subfolders for batch upload.
+          </p>
+
+          {/* Skills */}
+          <h4 className="
+            mb-1 text-xs font-semibold text-text-quaternary uppercase
+          ">
+            Skills (SKILL.md)
+          </h4>
+          <pre
+            className="
+              mb-3 overflow-x-auto rounded-md bg-gray-800 p-3 text-xs
+              text-gray-100
+              dark:bg-gray-950
+            "
+          >
+            {`---
+name: my-skill-name
+description: A short description of what this skill does
+---
+
+# My Skill
+
+Instructions for the AI agent...`}
+          </pre>
+
+          {/* Agents */}
+          <h4 className="
+            mb-1 text-xs font-semibold text-text-quaternary uppercase
+          ">
+            Agents (.md files)
+          </h4>
+          <pre
+            className="
+              mb-3 overflow-x-auto rounded-md bg-gray-800 p-3 text-xs
+              text-gray-100
+              dark:bg-gray-950
+            "
+          >
+            {`---
+name: my-agent
+description: What this agent does
+model: claude-sonnet-4-20250514
+tools:
+  - Read
+  - Edit
+---
+
+Agent instructions...`}
+          </pre>
+
+          {/* Rules */}
+          <h4 className="
+            mb-1 text-xs font-semibold text-text-quaternary uppercase
+          ">
+            Rules (.md files)
+          </h4>
+          <pre
+            className="
+              mb-3 overflow-x-auto rounded-md bg-gray-800 p-3 text-xs
+              text-gray-100
+              dark:bg-gray-950
+            "
+          >
+            {`---
+name: my-rule
+description: What this rule enforces
+paths:
+  - "src/**/*.ts"
+---
+
+Rule content...`}
+          </pre>
+
+          <ul
+            className="
+              list-inside list-disc space-y-1 text-xs text-text-tertiary
+            "
+          >
+            <li>
+              All item types require{' '}
+              <code className="rounded-sm bg-surface-tertiary px-1 py-0.5">name</code> and{' '}
+              <code className="rounded-sm bg-surface-tertiary px-1 py-0.5">description</code>
+              {' '}in their frontmatter
+            </li>
+            <li>
+              Skills must have a{' '}
+              <code className="rounded-sm bg-surface-tertiary px-1 py-0.5">SKILL.md</code>
+              {' '}file in each subfolder
+            </li>
+            <li>
+              Agents and rules are individual{' '}
+              <code className="rounded-sm bg-surface-tertiary px-1 py-0.5">.md</code>
+              {' '}files with frontmatter
+            </li>
+            <li>
+              See the full standard at{' '}
+              <a
+                className="text-accent-text underline"
+                href="https://agentskills.io"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                AgentSkills.io
+              </a>
+            </li>
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Utility Functions ───────────────────────────────────────────
+
 function sanitizeName(raw: string): string {
   return raw
     .toLowerCase()
     .replace(/[^a-z0-9-]/g, '-')
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '');
+}
+
+function SingleSkillPreview({
+  files,
+  info,
+}: {
+  files: UploadedFile[];
+  info: null | { description?: string; error?: string; name?: string };
+}) {
+  return (
+    <div className="rounded-lg border border-border bg-surface-secondary p-3">
+      {/* Auto-detected info from frontmatter */}
+      {info && !info.error && (info.name || info.description) && (
+        <div className="mb-3 rounded-md bg-surface-tertiary px-3 py-2">
+          <div className="
+            flex items-center gap-1.5 text-xs text-text-quaternary
+          ">
+            <CheckCircle2 className="size-3.5 text-status-success" />
+            Detected from SKILL.md frontmatter
+          </div>
+          {info.name && (
+            <div className="mt-1 text-sm font-medium text-text-primary">{info.name}</div>
+          )}
+          {info.description && (
+            <div className="mt-0.5 line-clamp-2 text-xs text-text-tertiary">
+              {info.description}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* File list */}
+      <ul className="space-y-1">
+        {files.map((file) => (
+          <li
+            className="
+              flex items-center justify-between rounded-sm px-2 py-1 text-sm
+              text-text-secondary
+              hover:bg-surface-tertiary
+            "
+            key={file.path}
+          >
+            <span className="flex items-center gap-1.5">
+              <File className="size-3.5 text-text-quaternary" />
+              {file.path}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 function tryParseFrontmatter(files: UploadedFile[]): {

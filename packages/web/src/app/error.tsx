@@ -11,8 +11,8 @@ export default function GlobalError({
     <main className="mx-auto max-w-lg px-4 py-16 text-center">
       <div
         className="
-        rounded-lg border border-status-error-border bg-status-error-bg p-6
-      "
+          rounded-lg border border-status-error-border bg-status-error-bg p-6
+        "
       >
         <h2 className="mb-2 text-lg font-semibold text-status-error">Something went wrong</h2>
         <p className="mb-4 text-sm text-status-error">{error.message}</p>

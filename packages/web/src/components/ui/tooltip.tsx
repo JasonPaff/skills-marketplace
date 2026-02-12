@@ -7,7 +7,9 @@ import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from '@/lib/utils/cn';
 
-const tooltipPopupVariants = cva(`rounded-lg px-3 py-1.5 text-sm/normal shadow-lg`, {
+const tooltipPopupVariants = cva(`
+  rounded-lg px-3 py-1.5 text-sm/normal shadow-lg
+`, {
   defaultVariants: {
     size: 'md',
     variant: 'dark',

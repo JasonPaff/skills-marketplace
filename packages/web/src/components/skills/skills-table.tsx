@@ -94,9 +94,9 @@ function SkillDetailPanel({ row }: { row: Row<Skill> }) {
 
       <div
         className="
-        grid gap-2 text-sm
-        sm:grid-cols-2
-      "
+          grid gap-2 text-sm
+          sm:grid-cols-2
+        "
       >
         <div>
           <span className="font-medium text-text-tertiary">Upload Date:</span>{' '}
@@ -209,8 +209,9 @@ export function SkillsTable() {
       {filteredSkills.length === 0 && !localSearch && (
         <div
           className="
-          rounded-lg border border-dashed border-border-strong p-12 text-center
-        "
+            rounded-lg border border-dashed border-border-strong p-12
+            text-center
+          "
         >
           <p className="text-text-tertiary">No skills found.</p>
           <Link
