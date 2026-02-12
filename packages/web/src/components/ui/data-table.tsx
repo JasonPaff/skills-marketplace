@@ -65,14 +65,14 @@ export function DataTable<TData>({
   });
 
   return (
-    <div className={cn('overflow-x-auto rounded-lg border border-gray-200', className)}>
+    <div className={cn('overflow-x-auto rounded-lg border border-border', className)}>
       <table className="w-full text-left text-sm">
-        <thead className="border-b border-gray-200 bg-gray-50">
+        <thead className="border-b border-border bg-surface-secondary">
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
                 <th
-                  className="px-4 py-3 font-medium text-gray-700"
+                  className="px-4 py-3 font-medium text-text-secondary"
                   key={header.id}
                   onClick={header.column.getToggleSortingHandler()}
                   style={{ cursor: header.column.getCanSort() ? 'pointer' : 'default' }}
@@ -92,7 +92,7 @@ export function DataTable<TData>({
             <React.Fragment key={row.id}>
               <tr
                 className="
-                  border-b border-gray-100
+                  border-b border-border
                   last:border-0
                 "
               >
@@ -122,7 +122,7 @@ export function DataTable<TData>({
           ))}
           {table.getRowModel().rows.length === 0 && (
             <tr>
-              <td className="px-4 py-8 text-center text-gray-500" colSpan={columns.length}>
+              <td className="px-4 py-8 text-center text-text-tertiary" colSpan={columns.length}>
                 No data
               </td>
             </tr>
@@ -132,12 +132,12 @@ export function DataTable<TData>({
       {table.getPageCount() > 1 && (
         <div
           className="
-            flex items-center justify-between border-t border-gray-200 px-4 py-3
+            flex items-center justify-between border-t border-border px-4 py-3
           "
         >
           <button
             className="
-              text-sm text-gray-600
+              text-sm text-text-secondary
               disabled:opacity-50
             "
             disabled={!table.getCanPreviousPage()}
@@ -145,12 +145,12 @@ export function DataTable<TData>({
           >
             Previous
           </button>
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-text-tertiary">
             Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
           </span>
           <button
             className="
-              text-sm text-gray-600
+              text-sm text-text-secondary
               disabled:opacity-50
             "
             disabled={!table.getCanNextPage()}

@@ -4,7 +4,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from '@/lib/utils/cn';
 
-const cardVariants = cva('rounded-lg border border-gray-200 bg-white shadow-sm', {
+const cardVariants = cva('rounded-lg border border-border bg-surface shadow-sm', {
   defaultVariants: {
     padding: 'md',
   },
@@ -12,7 +12,7 @@ const cardVariants = cva('rounded-lg border border-gray-200 bg-white shadow-sm',
     interactive: {
       true: `
         transition
-        hover:border-blue-300 hover:shadow-md
+        hover:border-accent-border hover:shadow-md
       `,
     },
     padding: {

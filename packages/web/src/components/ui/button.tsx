@@ -30,20 +30,20 @@ const buttonVariants = cva(
       },
       variant: {
         destructive: `
-          bg-red-600 text-white
-          hover:bg-red-700
+          bg-status-error text-text-on-accent
+          hover:opacity-90
         `,
         ghost: `
-          text-gray-600
-          hover:bg-gray-100 hover:text-gray-900
+          text-text-secondary
+          hover:bg-surface-tertiary hover:text-text-primary
         `,
         primary: `
-          bg-blue-600 text-white
-          hover:bg-blue-700
+          bg-accent text-text-on-accent
+          hover:bg-accent-hover
         `,
         secondary: `
-          border border-gray-300 bg-white text-gray-700
-          hover:bg-gray-50
+          border border-border-strong bg-surface text-text-secondary
+          hover:bg-surface-secondary
         `,
       },
     },

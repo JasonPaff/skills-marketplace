@@ -19,12 +19,12 @@ export function RadioGroup({ className, options, ...props }: RadioGroupProps) {
           <Radio.Root
             className="
               flex size-4 items-center justify-center rounded-full border
-              border-gray-300
-              data-checked:border-blue-600
+              border-border-strong
+              data-checked:border-accent
             "
             value={option.value}
           >
-            <Radio.Indicator className="size-2 rounded-full bg-blue-600" />
+            <Radio.Indicator className="size-2 rounded-full bg-accent" />
           </Radio.Root>
           {option.label}
         </label>

@@ -22,7 +22,7 @@ export function InteractiveStarRating({ onChange, value }: InteractiveStarRating
               text-2xl transition
               hover:scale-110
             `,
-            star <= (hovered || value) ? 'text-amber-400' : 'text-gray-300',
+            star <= (hovered || value) ? 'text-amber-400' : 'text-text-quaternary',
           )}
           key={star}
           onClick={() => onChange(star)}
@@ -33,7 +33,7 @@ export function InteractiveStarRating({ onChange, value }: InteractiveStarRating
           <Star className="size-6" fill={star <= (hovered || value) ? 'currentColor' : 'none'} />
         </button>
       ))}
-      {value > 0 && <span className="ml-2 text-sm text-gray-500">{value}/5</span>}
+      {value > 0 && <span className="ml-2 text-sm text-text-tertiary">{value}/5</span>}
     </div>
   );
 }

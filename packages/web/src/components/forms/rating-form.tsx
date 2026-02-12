@@ -44,8 +44,8 @@ export function RatingForm({ skillId }: RatingFormProps) {
   });
 
   return (
-    <div className="border-t border-gray-200 pt-6">
-      <h3 className="mb-3 font-semibold text-gray-900">Rate this skill</h3>
+    <div className="border-t border-border pt-6">
+      <h3 className="mb-3 font-semibold text-text-primary">Rate this skill</h3>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -83,7 +83,7 @@ export function RatingForm({ skillId }: RatingFormProps) {
         <p
           className={`
             mt-2 text-sm
-            ${message.startsWith('Failed') ? `text-red-600` : `text-green-600`}
+            ${message.startsWith('Failed') ? `text-status-error` : `text-status-success`}
           `}
         >
           {message}

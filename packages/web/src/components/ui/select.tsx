@@ -9,8 +9,8 @@ export function Select({ className, ...props }: SelectProps) {
     <select
       className={cn(
         `
-          rounded-lg border border-gray-300 px-4 py-2 text-sm
-          focus:border-blue-500 focus:ring-1 focus:ring-blue-500
+          rounded-lg border border-border-strong bg-surface px-4 py-2 text-sm text-text-primary
+          focus:border-accent-ring focus:ring-1 focus:ring-accent-ring
           focus:outline-none
           disabled:cursor-not-allowed disabled:opacity-50
         `,

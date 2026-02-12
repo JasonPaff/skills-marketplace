@@ -26,7 +26,7 @@ function SkillDetailInner({ id }: SkillDetailContentProps) {
   const { data: skill, error, isLoading } = useSkill(id);
 
   if (isLoading) {
-    return <div className="py-12 text-center text-gray-500">Loading skill...</div>;
+    return <div className="py-12 text-center text-text-tertiary">Loading skill...</div>;
   }
 
   if (error || !skill) {
@@ -34,9 +34,9 @@ function SkillDetailInner({ id }: SkillDetailContentProps) {
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+    <div className="rounded-lg border border-border bg-surface p-6 shadow-sm">
       <SkillHeader skill={skill} />
-      <p className="mb-6 leading-relaxed text-gray-700">{skill.description}</p>
+      <p className="mb-6 leading-relaxed text-text-secondary">{skill.description}</p>
       <SkillStats skill={skill} />
       <SkillMetadata skill={skill} />
       <RatingForm skillId={id} />

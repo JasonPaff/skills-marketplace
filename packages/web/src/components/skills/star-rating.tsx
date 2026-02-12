@@ -15,13 +15,13 @@ export function StarRating({ rating, showLabel = true }: StarRatingProps) {
           className={
             star <= Math.round(rating)
               ? 'size-4 text-amber-400'
-              : `size-4 text-gray-300`
+              : `size-4 text-text-quaternary`
           }
           fill={star <= Math.round(rating) ? 'currentColor' : 'none'}
           key={star}
         />
       ))}
-      {showLabel && <span className="ml-1 text-gray-500">({formatRating(rating)})</span>}
+      {showLabel && <span className="ml-1 text-text-tertiary">({formatRating(rating)})</span>}
     </span>
   );
 }

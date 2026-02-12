@@ -2,8 +2,11 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { ThemeProvider } from 'next-themes';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { type ReactNode, useState } from 'react';
+
+import { AccentColorProvider } from '@/lib/theme/accent-color-provider';
 
 export function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
@@ -19,9 +22,13 @@ export function Providers({ children }: { children: ReactNode }) {
   );
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <NuqsAdapter>{children}</NuqsAdapter>
-      <ReactQueryDevtools />
-    </QueryClientProvider>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <AccentColorProvider>
+        <QueryClientProvider client={queryClient}>
+          <NuqsAdapter>{children}</NuqsAdapter>
+          <ReactQueryDevtools />
+        </QueryClientProvider>
+      </AccentColorProvider>
+    </ThemeProvider>
   );
 }

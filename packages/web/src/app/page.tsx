@@ -18,7 +18,7 @@ export default function Home() {
         description="Discover, share, and install Claude Code &amp; Copilot skills across the organization."
         title="Detergent Skills Marketplace"
       />
-      <Suspense fallback={<div className="py-12 text-center text-gray-500">Loading skills...</div>}>
+      <Suspense fallback={<div className="py-12 text-center text-text-tertiary">Loading skills...</div>}>
         <SkillsTable />
       </Suspense>
     </main>

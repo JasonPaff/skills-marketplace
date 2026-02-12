@@ -1,1 +1,217 @@
 @import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ─── Semantic Token Registration ──────────────────────────────── */
+
+@theme {
+  /* Surface / neutral */
+  --color-surface: var(--surface);
+  --color-surface-secondary: var(--surface-secondary);
+  --color-surface-tertiary: var(--surface-tertiary);
+  --color-surface-invert: var(--surface-invert);
+
+  /* Border */
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  /* Text */
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-text-quaternary: var(--text-quaternary);
+  --color-text-invert: var(--text-invert);
+  --color-text-on-accent: var(--text-on-accent);
+
+  /* Accent */
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-subtle: var(--accent-subtle);
+  --color-accent-text: var(--accent-text);
+  --color-accent-border: var(--accent-border);
+  --color-accent-ring: var(--accent-ring);
+
+  /* Status */
+  --color-status-error: var(--status-error);
+  --color-status-error-bg: var(--status-error-bg);
+  --color-status-error-border: var(--status-error-border);
+  --color-status-success: var(--status-success);
+  --color-status-success-bg: var(--status-success-bg);
+  --color-status-warning: var(--status-warning);
+}
+
+/* ─── Light Mode (default) ─────────────────────────────────────── */
+
+:root {
+  /* Surface */
+  --surface: #ffffff;
+  --surface-secondary: #f9fafb;
+  --surface-tertiary: #f3f4f6;
+  --surface-invert: #111827;
+
+  /* Border */
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
+
+  /* Text */
+  --text-primary: #111827;
+  --text-secondary: #374151;
+  --text-tertiary: #6b7280;
+  --text-quaternary: #9ca3af;
+  --text-invert: #ffffff;
+  --text-on-accent: #ffffff;
+
+  /* Accent — blue (default) */
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-subtle: #eff6ff;
+  --accent-text: #1d4ed8;
+  --accent-border: #93c5fd;
+  --accent-ring: #3b82f6;
+
+  /* Status */
+  --status-error: #dc2626;
+  --status-error-bg: #fef2f2;
+  --status-error-border: #fecaca;
+  --status-success: #16a34a;
+  --status-success-bg: #f0fdf4;
+  --status-warning: #f59e0b;
+}
+
+/* ─── Dark Mode ────────────────────────────────────────────────── */
+
+.dark {
+  /* Surface */
+  --surface: #111827;
+  --surface-secondary: #1f2937;
+  --surface-tertiary: #374151;
+  --surface-invert: #ffffff;
+
+  /* Border */
+  --border: #374151;
+  --border-strong: #4b5563;
+
+  /* Text */
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-tertiary: #9ca3af;
+  --text-quaternary: #6b7280;
+  --text-invert: #111827;
+  --text-on-accent: #ffffff;
+
+  /* Accent — blue (default) */
+  --accent: #3b82f6;
+  --accent-hover: #60a5fa;
+  --accent-subtle: #172554;
+  --accent-text: #60a5fa;
+  --accent-border: #1e3a5f;
+  --accent-ring: #3b82f6;
+
+  /* Status */
+  --status-error: #f87171;
+  --status-error-bg: #450a0a;
+  --status-error-border: #991b1b;
+  --status-success: #4ade80;
+  --status-success-bg: #052e16;
+  --status-warning: #f59e0b;
+}
+
+/* ─── Accent: Purple ───────────────────────────────────────────── */
+
+[data-accent='purple'] {
+  --accent: #9333ea;
+  --accent-hover: #7e22ce;
+  --accent-subtle: #faf5ff;
+  --accent-text: #7e22ce;
+  --accent-border: #c4b5fd;
+  --accent-ring: #a855f7;
+}
+
+.dark[data-accent='purple'] {
+  --accent: #a855f7;
+  --accent-hover: #c084fc;
+  --accent-subtle: #3b0764;
+  --accent-text: #c084fc;
+  --accent-border: #581c87;
+  --accent-ring: #a855f7;
+}
+
+/* ─── Accent: Green ────────────────────────────────────────────── */
+
+[data-accent='green'] {
+  --accent: #16a34a;
+  --accent-hover: #15803d;
+  --accent-subtle: #f0fdf4;
+  --accent-text: #15803d;
+  --accent-border: #86efac;
+  --accent-ring: #22c55e;
+}
+
+.dark[data-accent='green'] {
+  --accent: #22c55e;
+  --accent-hover: #4ade80;
+  --accent-subtle: #052e16;
+  --accent-text: #4ade80;
+  --accent-border: #14532d;
+  --accent-ring: #22c55e;
+}
+
+/* ─── Accent: Rose ─────────────────────────────────────────────── */
+
+[data-accent='rose'] {
+  --accent: #e11d48;
+  --accent-hover: #be123c;
+  --accent-subtle: #fff1f2;
+  --accent-text: #be123c;
+  --accent-border: #fda4af;
+  --accent-ring: #f43f5e;
+}
+
+.dark[data-accent='rose'] {
+  --accent: #f43f5e;
+  --accent-hover: #fb7185;
+  --accent-subtle: #4c0519;
+  --accent-text: #fb7185;
+  --accent-border: #881337;
+  --accent-ring: #f43f5e;
+}
+
+/* ─── Accent: Orange ───────────────────────────────────────────── */
+
+[data-accent='orange'] {
+  --accent: #ea580c;
+  --accent-hover: #c2410c;
+  --accent-subtle: #fff7ed;
+  --accent-text: #c2410c;
+  --accent-border: #fdba74;
+  --accent-ring: #f97316;
+}
+
+.dark[data-accent='orange'] {
+  --accent: #f97316;
+  --accent-hover: #fb923c;
+  --accent-subtle: #431407;
+  --accent-text: #fb923c;
+  --accent-border: #7c2d12;
+  --accent-ring: #f97316;
+}
+
+/* ─── Accent: Teal ─────────────────────────────────────────────── */
+
+[data-accent='teal'] {
+  --accent: #0d9488;
+  --accent-hover: #0f766e;
+  --accent-subtle: #f0fdfa;
+  --accent-text: #0f766e;
+  --accent-border: #5eead4;
+  --accent-ring: #14b8a6;
+}
+
+.dark[data-accent='teal'] {
+  --accent: #14b8a6;
+  --accent-hover: #2dd4bf;
+  --accent-subtle: #042f2e;
+  --accent-text: #2dd4bf;
+  --accent-border: #134e4a;
+  --accent-ring: #14b8a6;
+}

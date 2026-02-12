@@ -168,9 +168,9 @@ export function SkillForm() {
     >
       <Card className="space-y-5" padding="lg">
         {/* Collapsible Skill Format Guide */}
-        <div className="rounded-lg border border-gray-200 bg-gray-50">
+        <div className="rounded-lg border border-border bg-surface-secondary">
           <button
-            className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-medium text-gray-700"
+            className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-medium text-text-secondary"
             onClick={() => setGuideOpen(!guideOpen)}
             type="button"
           >
@@ -178,12 +178,12 @@ export function SkillForm() {
             Skill Format Guide
           </button>
           {guideOpen && (
-            <div className="border-t border-gray-200 px-4 pb-4 pt-3 text-sm text-gray-600">
+            <div className="border-t border-border px-4 pb-4 pt-3 text-sm text-text-secondary">
               <p className="mb-2">
-                A skill is a folder containing a <code className="rounded bg-gray-200 px-1 py-0.5 text-xs">SKILL.md</code> file
+                A skill is a folder containing a <code className="rounded bg-surface-tertiary px-1 py-0.5 text-xs">SKILL.md</code> file
                 with YAML frontmatter:
               </p>
-              <pre className="mb-3 overflow-x-auto rounded-md bg-gray-800 p-3 text-xs text-gray-100">
+              <pre className="mb-3 overflow-x-auto rounded-md bg-gray-800 p-3 text-xs text-gray-100 dark:bg-gray-950">
 {`---
 name: my-skill-name
 description: A short description of what this skill does
@@ -193,12 +193,12 @@ description: A short description of what this skill does
 
 Instructions for the AI agent...`}
               </pre>
-              <ul className="list-inside list-disc space-y-1 text-xs text-gray-500">
-                <li>The <code className="rounded bg-gray-200 px-1 py-0.5">name</code> and <code className="rounded bg-gray-200 px-1 py-0.5">description</code> fields are required in the frontmatter</li>
+              <ul className="list-inside list-disc space-y-1 text-xs text-text-tertiary">
+                <li>The <code className="rounded bg-surface-tertiary px-1 py-0.5">name</code> and <code className="rounded bg-surface-tertiary px-1 py-0.5">description</code> fields are required in the frontmatter</li>
                 <li>Additional files (templates, configs, etc.) can be included alongside SKILL.md</li>
                 <li>
                   See the full standard at{' '}
-                  <a className="text-blue-600 underline" href="https://agentskills.io" rel="noopener noreferrer" target="_blank">
+                  <a className="text-accent-text underline" href="https://agentskills.io" rel="noopener noreferrer" target="_blank">
                     AgentSkills.io
                   </a>
                 </li>
@@ -316,8 +316,8 @@ Instructions for the AI agent...`}
               <button
                 className="
                   flex flex-1 flex-col items-center gap-2 rounded-lg border-2
-                  border-dashed border-gray-300 p-6 text-gray-500 transition
-                  hover:border-blue-400 hover:text-blue-600
+                  border-dashed border-border-strong p-6 text-text-tertiary transition
+                  hover:border-accent-border hover:text-accent-text
                 "
                 onClick={() => folderInputRef.current?.click()}
                 type="button"
@@ -329,8 +329,8 @@ Instructions for the AI agent...`}
               <button
                 className="
                   flex flex-1 flex-col items-center gap-2 rounded-lg border-2
-                  border-dashed border-gray-300 p-6 text-gray-500 transition
-                  hover:border-blue-400 hover:text-blue-600
+                  border-dashed border-border-strong p-6 text-text-tertiary transition
+                  hover:border-accent-border hover:text-accent-text
                 "
                 onClick={() => zipInputRef.current?.click()}
                 type="button"
@@ -341,24 +341,24 @@ Instructions for the AI agent...`}
               </button>
             </div>
           ) : (
-            <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+            <div className="rounded-lg border border-border bg-surface-secondary p-3">
               <div className="mb-2 flex items-center justify-between">
                 <span className="
-                  flex items-center gap-1.5 text-sm font-medium text-gray-700
+                  flex items-center gap-1.5 text-sm font-medium text-text-secondary
                 ">
                   <FolderOpen className="size-4" />
                   {uploadedFiles.length} file{uploadedFiles.length !== 1 && 's'}
                 </span>
                 <span className="flex gap-2">
                   <button
-                    className="text-xs text-blue-600 hover:underline"
+                    className="text-xs text-accent-text hover:underline"
                     onClick={() => folderInputRef.current?.click()}
                     type="button"
                   >
                     Re-select folder
                   </button>
                   <button
-                    className="text-xs text-blue-600 hover:underline"
+                    className="text-xs text-accent-text hover:underline"
                     onClick={() => zipInputRef.current?.click()}
                     type="button"
                   >
@@ -371,19 +371,19 @@ Instructions for the AI agent...`}
                   <li
                     className="
                       flex items-center justify-between rounded-sm px-2 py-1
-                      text-sm text-gray-600
-                      hover:bg-gray-100
+                      text-sm text-text-secondary
+                      hover:bg-surface-tertiary
                     "
                     key={file.path}
                   >
                     <span className="flex items-center gap-1.5">
-                      <File className="size-3.5 text-gray-400" />
+                      <File className="size-3.5 text-text-quaternary" />
                       {file.path}
                     </span>
                     <button
                       className="
-                        text-gray-400
-                        hover:text-red-500
+                        text-text-quaternary
+                        hover:text-status-error
                       "
                       onClick={() => removeFile(file.path)}
                       type="button"
@@ -400,8 +400,8 @@ Instructions for the AI agent...`}
         {errorMsg && (
           <div
             className="
-              rounded-lg border border-red-200 bg-red-50 p-3 text-sm
-              text-red-700
+              rounded-lg border border-status-error-border bg-status-error-bg p-3 text-sm
+              text-status-error
             "
           >
             {errorMsg}

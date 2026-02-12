@@ -11,13 +11,13 @@ export function PageHeader({ action, description, title }: PageHeaderProps) {
     <div className="mb-8 flex items-center justify-between">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
-        {description && <p className="mt-2 text-gray-600">{description}</p>}
+        {description && <p className="mt-2 text-text-secondary">{description}</p>}
       </div>
       {action && (
         <Link
           className="
-            rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white
-            hover:bg-blue-700
+            rounded-lg bg-accent px-4 py-2 text-sm font-medium text-text-on-accent
+            hover:bg-accent-hover
           "
           href={action.href}
         >

@@ -10,8 +10,8 @@ export function BackLink({ href, label }: BackLinkProps) {
   return (
     <Link
       className="
-        mb-6 inline-flex items-center gap-1 text-sm text-gray-500
-        hover:text-gray-700
+        mb-6 inline-flex items-center gap-1 text-sm text-text-tertiary
+        hover:text-text-secondary
       "
       href={href}
     >

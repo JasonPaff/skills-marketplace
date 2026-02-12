@@ -32,18 +32,18 @@ export function FormField({ children, error, hint, htmlFor, label, required }: F
 
   return (
     <div>
-      <label className="mb-1 block text-sm font-medium text-gray-700" htmlFor={htmlFor}>
+      <label className="mb-1 block text-sm font-medium text-text-secondary" htmlFor={htmlFor}>
         {label}
         {required && ' *'}
       </label>
       {typeof children === 'function' ? children(ariaProps) : children}
       {hint && !error && (
-        <p className="mt-1 text-xs text-gray-400" id={hintId}>
+        <p className="mt-1 text-xs text-text-quaternary" id={hintId}>
           {hint}
         </p>
       )}
       {error && (
-        <p className="mt-1 text-xs text-red-600" id={errorId} role="alert">
+        <p className="mt-1 text-xs text-status-error" id={errorId} role="alert">
           {error}
         </p>
       )}

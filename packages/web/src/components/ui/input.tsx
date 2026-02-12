@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils/cn';
 
 const inputVariants = cva(
   `
-    rounded-lg border px-3 py-2 text-sm
+    rounded-lg border bg-surface px-3 py-2 text-sm text-text-primary
     focus:ring-1 focus:outline-none
     disabled:cursor-not-allowed disabled:opacity-50
   `,
@@ -20,12 +20,12 @@ const inputVariants = cva(
     variants: {
       error: {
         false: `
-          border-gray-300
-          focus:border-blue-500 focus:ring-blue-500
+          border-border-strong
+          focus:border-accent-ring focus:ring-accent-ring
         `,
         true: `
-          border-red-500
-          focus:border-red-500 focus:ring-red-500
+          border-status-error
+          focus:border-status-error focus:ring-status-error
         `,
       },
     },

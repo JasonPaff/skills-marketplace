@@ -21,8 +21,8 @@ const tooltipPopupVariants = cva(
         sm: 'max-w-[200px] px-2 py-1 text-xs',
       },
       variant: {
-        dark: 'bg-gray-900 text-white',
-        light: 'border border-gray-200 bg-white text-gray-900',
+        dark: 'bg-surface-invert text-text-invert',
+        light: 'border border-border bg-surface text-text-primary',
       },
     },
   },
@@ -34,8 +34,8 @@ const tooltipArrowVariants = cva('', {
   },
   variants: {
     variant: {
-      dark: '[&>path]:fill-gray-900',
-      light: '[&>path]:fill-white [&>path]:stroke-gray-200',
+      dark: '[&>path]:fill-surface-invert',
+      light: '[&>path]:fill-surface [&>path]:stroke-border',
     },
   },
 });

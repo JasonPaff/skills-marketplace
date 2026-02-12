@@ -8,20 +8,20 @@ interface SkillStatsProps {
 
 export function SkillStats({ skill }: SkillStatsProps) {
   return (
-    <div className="mb-6 grid grid-cols-3 gap-4 rounded-lg bg-gray-50 p-4">
+    <div className="mb-6 grid grid-cols-3 gap-4 rounded-lg bg-surface-secondary p-4">
       <div className="text-center">
-        <div className="text-2xl font-bold text-gray-900">{skill.downloadCount}</div>
-        <div className="text-xs text-gray-500">Downloads</div>
+        <div className="text-2xl font-bold text-text-primary">{skill.downloadCount}</div>
+        <div className="text-xs text-text-tertiary">Downloads</div>
       </div>
       <div className="text-center">
-        <div className="text-2xl font-bold text-gray-900">{formatRating(skill.averageRating)}</div>
-        <div className="text-xs text-gray-500">Avg Rating ({skill.ratingCount} reviews)</div>
+        <div className="text-2xl font-bold text-text-primary">{formatRating(skill.averageRating)}</div>
+        <div className="text-xs text-text-tertiary">Avg Rating ({skill.ratingCount} reviews)</div>
       </div>
       <div className="text-center">
-        <div className="text-2xl font-bold text-gray-900">
+        <div className="text-2xl font-bold text-text-primary">
           {skill.parentSkillId ? 'Fork' : 'Original'}
         </div>
-        <div className="text-xs text-gray-500">Source</div>
+        <div className="text-xs text-text-tertiary">Source</div>
       </div>
     </div>
   );

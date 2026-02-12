@@ -33,7 +33,7 @@ const columns: ColumnDef<Skill, unknown>[] = [
         onClick={row.getToggleExpandedHandler()}
       >
         <ChevronRight
-          className="size-4 text-gray-500 transition-transform duration-200"
+          className="size-4 text-text-tertiary transition-transform duration-200"
           style={{ transform: row.getIsExpanded() ? 'rotate(90deg)' : undefined }}
         />
       </button>
@@ -94,27 +94,27 @@ function SkillDetailPanel({ row }: { row: Row<Skill> }) {
   };
 
   return (
-    <div className="space-y-3 bg-gray-50 px-8 py-5">
-      <p className="text-sm text-gray-700">{skill.description}</p>
+    <div className="space-y-3 bg-surface-secondary px-8 py-5">
+      <p className="text-sm text-text-secondary">{skill.description}</p>
 
       <div className="
         grid gap-2 text-sm
         sm:grid-cols-2
       ">
         <div>
-          <span className="font-medium text-gray-500">Upload Date:</span>{' '}
-          <span className="text-gray-700">{formatDate(skill.uploadedAt)}</span>
+          <span className="font-medium text-text-tertiary">Upload Date:</span>{' '}
+          <span className="text-text-secondary">{formatDate(skill.uploadedAt)}</span>
         </div>
         <div>
-          <span className="font-medium text-gray-500">Version:</span>{' '}
-          <span className="text-gray-700">v{skill.version}</span>
+          <span className="font-medium text-text-tertiary">Version:</span>{' '}
+          <span className="text-text-secondary">v{skill.version}</span>
         </div>
         <div>
-          <span className="font-medium text-gray-500">GitHub Path:</span>{' '}
-          <span className="text-gray-700">{skill.githubPath}</span>
+          <span className="font-medium text-text-tertiary">GitHub Path:</span>{' '}
+          <span className="text-text-secondary">{skill.githubPath}</span>
         </div>
         <div>
-          <span className="font-medium text-gray-500">Rating:</span>{' '}
+          <span className="font-medium text-text-tertiary">Rating:</span>{' '}
           <StarRating rating={Number(skill.averageRating)} />
         </div>
       </div>
@@ -172,7 +172,7 @@ export function SkillsTable() {
   }, [skills, rating, downloads]);
 
   if (isLoading) {
-    return <div className="py-12 text-center text-gray-500">Loading skills...</div>;
+    return <div className="py-12 text-center text-text-tertiary">Loading skills...</div>;
   }
 
   if (error) {
@@ -227,12 +227,12 @@ export function SkillsTable() {
       {/* Empty state with link to upload */}
       {filteredSkills.length === 0 && !localSearch && (
         <div className="
-          rounded-lg border border-dashed border-gray-300 p-12 text-center
+          rounded-lg border border-dashed border-border-strong p-12 text-center
         ">
-          <p className="text-gray-500">No skills found.</p>
+          <p className="text-text-tertiary">No skills found.</p>
           <Link
             className="
-              mt-2 inline-block text-sm text-blue-600
+              mt-2 inline-block text-sm text-accent-text
               hover:underline
             "
             href={$path({ route: '/skills/new' })}

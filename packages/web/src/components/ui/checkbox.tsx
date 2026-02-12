@@ -18,8 +18,8 @@ export function Checkbox({ className, id, label, ...props }: CheckboxProps) {
         className={cn(
           `
             flex size-4 items-center justify-center rounded-sm border
-            border-gray-300 text-white transition
-            data-checked:border-blue-600 data-checked:bg-blue-600
+            border-border-strong text-text-on-accent transition
+            data-checked:border-accent data-checked:bg-accent
           `,
           className,
         )}
