@@ -1,9 +1,7 @@
-import { SKILL_CATEGORIES } from '@emergent/shared';
 import { relations } from 'drizzle-orm';
 import {
   boolean,
   integer,
-  pgEnum,
   pgTable,
   real,
   text,
@@ -12,8 +10,6 @@ import {
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
-
-export const skillCategoryEnum = pgEnum('skill_category', SKILL_CATEGORIES);
 
 // ─── Clients ──────────────────────────────────────────────────────
 
@@ -53,18 +49,15 @@ export const projectsRelations = relations(projects, ({ many, one }) => ({
 
 export const skills = pgTable('skills', {
   averageRating: real('average_rating').default(0).notNull(),
-  category: skillCategoryEnum('category').notNull(),
   description: varchar('description', { length: 500 }).notNull(),
   downloadCount: integer('download_count').default(0).notNull(),
   githubPath: varchar('github_path', { length: 500 }).notNull(),
   id: uuid('id').primaryKey().defaultRandom(),
-  isGlobal: boolean('is_global').default(true).notNull(),
   name: varchar('name', { length: 100 }).notNull(),
   parentSkillId: uuid('parent_skill_id'),
   ratingCount: integer('rating_count').default(0).notNull(),
   totalRating: integer('total_rating').default(0).notNull(),
   uploadedAt: timestamp('uploaded_at', { withTimezone: true }).defaultNow().notNull(),
-  uploadedBy: varchar('uploaded_by', { length: 100 }).notNull(),
   version: varchar('version', { length: 20 }).default('1.0.0').notNull(),
 });
 

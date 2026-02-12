@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { RATING_MAX, RATING_MIN, SKILL_CATEGORIES } from './constants.js';
+import { RATING_MAX, RATING_MIN } from './constants.js';
 
 // ─── Client Schemas ───────────────────────────────────────────────
 
@@ -40,7 +40,6 @@ export const skillFileSchema = z.object({
 });
 
 export const createSkillSchema = z.object({
-  category: z.enum(SKILL_CATEGORIES),
   description: z.string().min(1).max(500),
   files: z
     .array(skillFileSchema)
@@ -48,14 +47,11 @@ export const createSkillSchema = z.object({
     .refine((files) => files.some((f) => f.path === 'SKILL.md'), {
       message: 'A SKILL.md file is required',
     }),
-  isGlobal: z.boolean(),
   name: z
     .string()
     .min(1)
     .max(100)
     .regex(/^[a-z0-9-]+$/, 'Skill name must be lowercase alphanumeric with hyphens'),
-  projectId: z.uuid().nullable().optional(),
-  uploadedBy: z.string().min(1).max(100),
 });
 
 export const skillSchema = createSkillSchema.omit({ files: true }).extend({
@@ -83,12 +79,6 @@ export const forkSkillSchema = z.object({
 // ─── Query Schemas ────────────────────────────────────────────────
 
 export const skillsQuerySchema = z.object({
-  category: z.enum(SKILL_CATEGORIES).optional(),
-  isGlobal: z
-    .string()
-    .transform((v) => v === 'true')
-    .optional(),
-  projectId: z.uuid().optional(),
   search: z.string().optional(),
 });
 

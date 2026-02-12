@@ -1,5 +1,3 @@
-import type { SkillCategory } from '@emergent/shared';
-
 import { and, eq, ilike, sql } from 'drizzle-orm';
 
 import type { Database } from '../db/index.js';
@@ -26,13 +24,10 @@ export function createSkillQueries(db: Database) {
     },
 
     async insertSkill(values: {
-      category: SkillCategory;
       description: string;
       githubPath: string;
-      isGlobal: boolean;
       name: string;
       parentSkillId?: string;
-      uploadedBy: string;
       version?: string;
     }) {
       const [skill] = await db.insert(skills).values(values).returning();
@@ -49,21 +44,11 @@ export function createSkillQueries(db: Database) {
       return skill as typeof skill | undefined;
     },
 
-    async selectSkills(filters?: {
-      category?: SkillCategory;
-      isGlobal?: boolean;
-      search?: string;
-    }) {
+    async selectSkills(filters?: { search?: string }) {
       const conditions = [];
 
       if (filters?.search) {
         conditions.push(ilike(skills.name, `%${filters.search}%`));
-      }
-      if (filters?.category) {
-        conditions.push(eq(skills.category, filters.category));
-      }
-      if (filters?.isGlobal !== undefined) {
-        conditions.push(eq(skills.isGlobal, filters.isGlobal));
       }
 
       const where = conditions.length > 0 ? and(...conditions) : undefined;

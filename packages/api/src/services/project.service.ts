@@ -43,19 +43,10 @@ export function createProjectService(queries: ProjectQueries) {
         throw new HTTPException(404, { message: 'Project not found' });
       }
 
-      // Get project-specific skills
-      const projectSpecificSkills = await queries.selectProjectSkillsByProjectId(projectId);
+      // Get skills associated with this project
+      const projectSkills = await queries.selectProjectSkillsByProjectId(projectId);
 
-      // Get all global skills (inherited by all projects)
-      const globalSkills = await queries.selectGlobalSkills();
-
-      // Merge: project-specific skills override global skills with the same name
-      const projectSkillNames = new Set(projectSpecificSkills.map((s) => s.name));
-      const inheritedGlobal = globalSkills
-        .filter((s) => !projectSkillNames.has(s.name))
-        .map((s) => ({ ...s, isCustomized: false }));
-
-      return [...projectSpecificSkills, ...inheritedGlobal];
+      return projectSkills;
     },
   };
 }

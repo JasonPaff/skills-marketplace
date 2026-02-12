@@ -19,7 +19,7 @@ export function createProjectQueries(db: Database) {
     },
 
     async selectGlobalSkills() {
-      return db.select().from(skills).where(eq(skills.isGlobal, true));
+      return db.select().from(skills);
     },
 
     async selectProjectById(projectId: string) {
@@ -48,19 +48,16 @@ export function createProjectQueries(db: Database) {
       return db
         .select({
           averageRating: skills.averageRating,
-          category: skills.category,
           description: skills.description,
           downloadCount: skills.downloadCount,
           githubPath: skills.githubPath,
           id: skills.id,
           isCustomized: projectSkills.isCustomized,
-          isGlobal: skills.isGlobal,
           name: skills.name,
           parentSkillId: skills.parentSkillId,
           ratingCount: skills.ratingCount,
           totalRating: skills.totalRating,
           uploadedAt: skills.uploadedAt,
-          uploadedBy: skills.uploadedBy,
           version: skills.version,
         })
         .from(projectSkills)

@@ -5,7 +5,6 @@ import type {
   CreateSkill,
   ForkSkill,
   RateSkill,
-  SkillCategory,
 } from '@emergent/shared';
 
 import { hc } from 'hono/client';
@@ -84,16 +83,10 @@ export async function fetchSkill(id: string) {
 }
 
 export async function fetchSkills(params?: {
-  category?: SkillCategory;
-  isGlobal?: boolean;
-  projectId?: string;
   search?: string;
 }) {
   const res = await client.api.skills.$get({
     query: {
-      category: params?.category,
-      isGlobal: params?.isGlobal !== undefined ? String(params.isGlobal) : undefined,
-      projectId: params?.projectId,
       search: params?.search,
     },
   });

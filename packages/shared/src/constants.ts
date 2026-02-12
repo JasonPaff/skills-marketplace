@@ -1,17 +1,3 @@
-export const SKILL_CATEGORIES = [
-  'dotnet',
-  'react',
-  'react-native',
-  'sql',
-  'typescript',
-  'devops',
-  'testing',
-  'security',
-  'general',
-] as const;
-
-export type SkillCategory = (typeof SKILL_CATEGORIES)[number];
-
 export const SKILL_SCOPES = ['global', 'project'] as const;
 
 export type SkillScope = (typeof SKILL_SCOPES)[number];

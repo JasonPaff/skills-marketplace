@@ -3,7 +3,6 @@
 import { parseAsString, useQueryStates } from 'nuqs';
 
 const skillsSearchParamsParsers = {
-  category: parseAsString.withDefault(''),
   search: parseAsString.withDefault(''),
 };
 

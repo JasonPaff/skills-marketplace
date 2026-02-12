@@ -11,8 +11,8 @@ import { SkillCard } from './skill-card';
 import { SkillFilters } from './skill-filters';
 
 export function SkillsList() {
-  const [{ category, search }] = useSkillsSearchParams();
-  const { data: skills, error, isLoading } = useSkills({ category, search });
+  const [{ search }] = useSkillsSearchParams();
+  const { data: skills, error, isLoading } = useSkills({ search });
 
   return (
     <>

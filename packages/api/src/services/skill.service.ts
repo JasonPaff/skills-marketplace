@@ -11,32 +11,16 @@ export type SkillService = ReturnType<typeof createSkillService>;
 type SkillsQuery = z.infer<typeof skillsQuerySchema>;
 
 export function createSkillService(queries: SkillQueries, github: GitHubClient) {
-  async function deriveGithubPath(
-    name: string,
-    isGlobal: boolean,
-    projectId?: null | string,
-  ): Promise<string> {
-    if (isGlobal) {
-      return `skills/global/${name}`;
-    }
-
-    // Look up project slug
-    const project = await queries.selectProjectById(projectId!);
-
-    if (!project) {
-      throw new HTTPException(404, { message: 'Project not found' });
-    }
-
-    const projectSlug = project.name.toLowerCase().replace(/\s+/g, '-');
-    return `skills/projects/${projectSlug}/${name}`;
+  function deriveGithubPath(name: string): string {
+    return `skills/global/${name}`;
   }
 
   return {
     async createSkill(data: CreateSkill) {
-      const { category, description, files, isGlobal, name, projectId, uploadedBy } = data;
+      const { description, files, name } = data;
 
       // Determine GitHub path
-      const githubPath = await deriveGithubPath(name, isGlobal, projectId);
+      const githubPath = deriveGithubPath(name);
 
       // Commit files to GitHub (before DB insert so a failure doesn't leave orphaned records)
       const githubFiles = files.map((file) => ({
@@ -47,22 +31,10 @@ export function createSkillService(queries: SkillQueries, github: GitHubClient) 
 
       // Insert metadata into database
       const skill = await queries.insertSkill({
-        category,
         description,
         githubPath,
-        isGlobal,
         name,
-        uploadedBy,
       });
-
-      // If project-specific, create project_skills entry
-      if (!isGlobal && projectId) {
-        await queries.insertProjectSkill({
-          isCustomized: false,
-          projectId,
-          skillId: skill.id,
-        });
-      }
 
       return skill;
     },
@@ -112,13 +84,10 @@ export function createSkillService(queries: SkillQueries, github: GitHubClient) 
 
       // Create new skill record
       const forked = await queries.insertSkill({
-        category: original.category,
         description: original.description,
         githubPath,
-        isGlobal: false,
         name: skillName,
         parentSkillId: original.id,
-        uploadedBy: original.uploadedBy,
         version: original.version,
       });
 

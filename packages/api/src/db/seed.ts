@@ -1,7 +1,4 @@
 import 'dotenv/config';
-
-import type { SkillCategory } from '@emergent/shared';
-
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 
@@ -65,115 +62,88 @@ async function seed() {
   // Create global skills
   const globalSkillData: {
     averageRating?: number;
-    category: SkillCategory;
     description: string;
     downloadCount?: number;
     githubPath: string;
-    isGlobal: boolean;
     name: string;
     ratingCount?: number;
     totalRating?: number;
-    uploadedBy: string;
   }[] = [
     {
-      category: 'react',
       description:
         'Best practices for React component architecture including compound components, render props, and hooks patterns.',
       githubPath: 'skills/global/react-component-patterns',
-      isGlobal: true,
       name: 'react-component-patterns',
-      uploadedBy: 'jason.paff@emergent.com',
     },
     {
       averageRating: 4.0,
-      category: 'dotnet',
       description:
         'Generate .NET Web API controllers, services, and DTOs following Emergent coding standards.',
       downloadCount: 12,
       githubPath: 'skills/global/dotnet-api-scaffolding',
-      isGlobal: true,
       name: 'dotnet-api-scaffolding',
       ratingCount: 5,
       totalRating: 20,
-      uploadedBy: 'sarah.chen@emergent.com',
     },
     {
       averageRating: 4.67,
-      category: 'sql',
       description:
         'Analyze and optimize SQL queries for performance, suggesting index improvements and query rewrites.',
       downloadCount: 8,
       githubPath: 'skills/global/sql-query-optimizer',
-      isGlobal: true,
       name: 'sql-query-optimizer',
       ratingCount: 3,
       totalRating: 14,
-      uploadedBy: 'mike.johnson@emergent.com',
     },
     {
       averageRating: 4.5,
-      category: 'typescript',
       description:
         'Enforce strict TypeScript patterns including proper null checks, exhaustive switch statements, and branded types.',
       downloadCount: 25,
       githubPath: 'skills/global/typescript-strict-mode',
-      isGlobal: true,
       name: 'typescript-strict-mode',
       ratingCount: 10,
       totalRating: 45,
-      uploadedBy: 'jason.paff@emergent.com',
     },
     {
       averageRating: 4.29,
-      category: 'testing',
       description:
         'Generate comprehensive unit tests with arrange-act-assert pattern, mocking strategies, and edge case coverage.',
       downloadCount: 18,
       githubPath: 'skills/global/unit-test-generator',
-      isGlobal: true,
       name: 'unit-test-generator',
       ratingCount: 7,
       totalRating: 30,
-      uploadedBy: 'sarah.chen@emergent.com',
     },
     {
       averageRating: 4.5,
-      category: 'devops',
       description:
         'Create Docker Compose configurations for local development with database, cache, and service dependencies.',
       downloadCount: 6,
       githubPath: 'skills/global/docker-compose-setup',
-      isGlobal: true,
       name: 'docker-compose-setup',
       ratingCount: 2,
       totalRating: 9,
-      uploadedBy: 'mike.johnson@emergent.com',
     },
     {
       averageRating: 5.0,
-      category: 'security',
       description:
         'Run through OWASP Top 10 security checks on code, identifying vulnerabilities and suggesting mitigations.',
       downloadCount: 3,
       githubPath: 'skills/global/security-audit-checklist',
-      isGlobal: true,
       name: 'security-audit-checklist',
       ratingCount: 1,
       totalRating: 5,
-      uploadedBy: 'jason.paff@emergent.com',
     },
     {
       averageRating: 3.5,
-      category: 'react-native',
       description:
         'Set up and configure React Navigation with typed routes, deep linking, and authentication flows.',
       downloadCount: 4,
       githubPath: 'skills/global/react-native-navigation',
-      isGlobal: true,
       name: 'react-native-navigation',
       ratingCount: 2,
       totalRating: 7,
-      uploadedBy: 'sarah.chen@emergent.com',
     },
   ];
 
@@ -186,32 +156,23 @@ async function seed() {
 
   // Create project-specific skills
   const projectSkillData: {
-    category: SkillCategory;
     description: string;
     githubPath: string;
-    isGlobal: boolean;
     name: string;
     parentSkillId?: string;
-    uploadedBy: string;
   }[] = [
     {
-      category: 'dotnet',
       description:
         'Acme-specific API naming conventions, error response formats, and pagination patterns.',
       githubPath: 'skills/projects/acme-api-platform/acme-api-conventions',
-      isGlobal: false,
       name: 'acme-api-conventions',
       parentSkillId: globalSkills.find((s) => s.name === 'dotnet-api-scaffolding')!.id,
-      uploadedBy: 'jason.paff@emergent.com',
     },
     {
-      category: 'react-native',
       description:
         'Northwind brand-specific React Native components with their design system tokens and accessibility requirements.',
       githubPath: 'skills/projects/northwind-mobile-app/northwind-component-library',
-      isGlobal: false,
       name: 'northwind-component-library',
-      uploadedBy: 'sarah.chen@emergent.com',
     },
   ];
 
