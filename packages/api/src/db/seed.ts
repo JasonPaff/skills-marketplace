@@ -123,10 +123,7 @@ async function seed() {
     },
   ];
 
-  const globalSkills = await db
-    .insert(schema.skills)
-    .values(globalSkillData)
-    .returning();
+  const globalSkills = await db.insert(schema.skills).values(globalSkillData).returning();
 
   console.log(`  Created ${globalSkills.length} global skills`);
 
@@ -152,10 +149,7 @@ async function seed() {
     },
   ];
 
-  const projectSpecificSkills = await db
-    .insert(schema.skills)
-    .values(projectSkillData)
-    .returning();
+  const projectSpecificSkills = await db.insert(schema.skills).values(projectSkillData).returning();
 
   console.log(`  Created ${projectSpecificSkills.length} project-specific skills`);
 

@@ -30,10 +30,5 @@ const textareaVariants = cva(
 type TextareaProps = ComponentProps<'textarea'> & VariantProps<typeof textareaVariants>;
 
 export function Textarea({ className, error, ...props }: TextareaProps) {
-  return (
-    <textarea
-      className={cn(textareaVariants({ error }), className)}
-      {...props}
-    />
-  );
+  return <textarea className={cn(textareaVariants({ error }), className)} {...props} />;
 }

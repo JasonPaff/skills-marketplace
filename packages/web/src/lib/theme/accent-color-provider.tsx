@@ -1,6 +1,14 @@
 'use client';
 
-import { createContext, type ReactNode, useCallback, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  type ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useEffectEvent,
+  useState,
+} from 'react';
 
 const ACCENT_COLORS = ['blue', 'purple', 'green', 'rose', 'orange', 'teal'] as const;
 type AccentColor = (typeof ACCENT_COLORS)[number];
@@ -19,11 +27,15 @@ const DEFAULT_ACCENT: AccentColor = 'blue';
 export function AccentColorProvider({ children }: { children: ReactNode }) {
   const [accentColor, setAccentColorState] = useState<AccentColor>(DEFAULT_ACCENT);
 
+  const updateAccentColor = useEffectEvent((color: AccentColor) => {
+    setAccentColorState(color);
+  });
+
   // Read from localStorage on mount
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored && ACCENT_COLORS.includes(stored as AccentColor)) {
-      setAccentColorState(stored as AccentColor);
+      updateAccentColor(stored as AccentColor);
     }
   }, []);
 

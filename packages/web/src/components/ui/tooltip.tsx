@@ -7,26 +7,23 @@ import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from '@/lib/utils/cn';
 
-const tooltipPopupVariants = cva(
-  `rounded-lg px-3 py-1.5 text-sm/normal shadow-lg`,
-  {
-    defaultVariants: {
-      size: 'md',
-      variant: 'dark',
+const tooltipPopupVariants = cva(`rounded-lg px-3 py-1.5 text-sm/normal shadow-lg`, {
+  defaultVariants: {
+    size: 'md',
+    variant: 'dark',
+  },
+  variants: {
+    size: {
+      lg: 'max-w-sm px-4 py-2 text-sm',
+      md: 'max-w-xs px-3 py-1.5 text-xs',
+      sm: 'max-w-[200px] px-2 py-1 text-xs',
     },
-    variants: {
-      size: {
-        lg: 'max-w-sm px-4 py-2 text-sm',
-        md: 'max-w-xs px-3 py-1.5 text-xs',
-        sm: 'max-w-[200px] px-2 py-1 text-xs',
-      },
-      variant: {
-        dark: 'bg-surface-invert text-text-invert',
-        light: 'border border-border bg-surface text-text-primary',
-      },
+    variant: {
+      dark: 'bg-surface-invert text-text-invert',
+      light: 'border border-border bg-surface text-text-primary',
     },
   },
-);
+});
 
 const tooltipArrowVariants = cva('', {
   defaultVariants: {
@@ -75,12 +72,8 @@ export function Tooltip({
         </BaseTooltip.Trigger>
         <BaseTooltip.Portal>
           <BaseTooltip.Positioner side={side} sideOffset={sideOffset}>
-            <BaseTooltip.Popup
-              className={cn(tooltipPopupVariants({ size, variant }), className)}
-            >
-              <BaseTooltip.Arrow
-                className={cn(tooltipArrowVariants({ variant }))}
-              />
+            <BaseTooltip.Popup className={cn(tooltipPopupVariants({ size, variant }), className)}>
+              <BaseTooltip.Arrow className={cn(tooltipArrowVariants({ variant }))} />
               {content}
             </BaseTooltip.Popup>
           </BaseTooltip.Positioner>

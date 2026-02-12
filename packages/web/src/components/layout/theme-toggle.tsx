@@ -3,7 +3,7 @@
 import { Popover } from '@base-ui/react/popover';
 import { Moon, Palette, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import { useEffect, useState } from 'react';
+import { useEffect, useEffectEvent, useState } from 'react';
 
 import { useAccentColor } from '@/lib/theme/accent-color-provider';
 import { cn } from '@/lib/utils/cn';
@@ -22,7 +22,9 @@ export function ThemeToggle() {
   const { setTheme, theme } = useTheme();
   const { accentColor, setAccentColor } = useAccentColor();
 
-  useEffect(() => setMounted(true), []);
+  const updateTheme = useEffectEvent(() => setMounted(true));
+
+  useEffect(() => updateTheme(), []);
 
   if (!mounted) return null;
 
@@ -46,10 +48,12 @@ export function ThemeToggle() {
               w-56 rounded-xl border border-border bg-surface p-4 shadow-xl
             "
           >
-            <p className="
-              mb-3 text-xs font-semibold tracking-wider text-text-tertiary
-              uppercase
-            ">
+            <p
+              className="
+                mb-3 text-xs font-semibold tracking-wider text-text-tertiary
+                uppercase
+              "
+            >
               Appearance
             </p>
 
@@ -94,10 +98,12 @@ export function ThemeToggle() {
             </div>
 
             {/* Accent color swatches */}
-            <p className="
-              mb-2 text-xs font-semibold tracking-wider text-text-tertiary
-              uppercase
-            ">
+            <p
+              className="
+                mb-2 text-xs font-semibold tracking-wider text-text-tertiary
+                uppercase
+              "
+            >
               Accent Color
             </p>
             <div className="grid grid-cols-6 gap-2">

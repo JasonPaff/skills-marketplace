@@ -92,10 +92,12 @@ function SkillDetailPanel({ row }: { row: Row<Skill> }) {
     <div className="space-y-3 bg-surface-secondary px-8 py-5">
       <p className="text-sm text-text-secondary">{skill.description}</p>
 
-      <div className="
+      <div
+        className="
         grid gap-2 text-sm
         sm:grid-cols-2
-      ">
+      "
+      >
         <div>
           <span className="font-medium text-text-tertiary">Upload Date:</span>{' '}
           <span className="text-text-secondary">{formatDate(skill.uploadedAt)}</span>
@@ -205,9 +207,11 @@ export function SkillsTable() {
 
       {/* Empty state with link to upload */}
       {filteredSkills.length === 0 && !localSearch && (
-        <div className="
+        <div
+          className="
           rounded-lg border border-dashed border-border-strong p-12 text-center
-        ">
+        "
+        >
           <p className="text-text-tertiary">No skills found.</p>
           <Link
             className="

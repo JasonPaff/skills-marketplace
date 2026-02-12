@@ -9,9 +9,11 @@ export default function GlobalError({
 }) {
   return (
     <main className="mx-auto max-w-lg px-4 py-16 text-center">
-      <div className="
+      <div
+        className="
         rounded-lg border border-status-error-border bg-status-error-bg p-6
-      ">
+      "
+      >
         <h2 className="mb-2 text-lg font-semibold text-status-error">Something went wrong</h2>
         <p className="mb-4 text-sm text-status-error">{error.message}</p>
         <button

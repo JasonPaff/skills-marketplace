@@ -17,9 +17,7 @@ export interface ProviderAdapter {
 
 export const claudeAdapter: ProviderAdapter = {
   getDisplayPath(scope: SkillScope, skillName: string): string {
-    return scope === 'global'
-      ? `~/.claude/${skillName}`
-      : `.claude/${skillName}`;
+    return scope === 'global' ? `~/.claude/${skillName}` : `.claude/${skillName}`;
   },
   getTargetDirectory(scope: SkillScope, skillName: string): string {
     const base = scope === 'global' ? os.homedir() : process.cwd();

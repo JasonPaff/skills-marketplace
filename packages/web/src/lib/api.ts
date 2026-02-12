@@ -1,10 +1,5 @@
 import type { AppType } from '@emergent/api';
-import type {
-  CreateClient,
-  CreateProject,
-  CreateSkill,
-  ForkSkill,
-} from '@emergent/shared';
+import type { CreateClient, CreateProject, CreateSkill, ForkSkill } from '@emergent/shared';
 
 import { hc } from 'hono/client';
 
@@ -81,9 +76,7 @@ export async function fetchSkill(id: string) {
   return json.data;
 }
 
-export async function fetchSkills(params?: {
-  search?: string;
-}) {
+export async function fetchSkills(params?: { search?: string }) {
   const res = await client.api.skills.$get({
     query: {
       search: params?.search,

@@ -132,7 +132,9 @@ export function SkillForm() {
     },
   });
 
-  const filesError = fileError || (uploadedFiles.length > 0 && !hasSkillMd ? 'A SKILL.md file is required' : undefined);
+  const filesError =
+    fileError ||
+    (uploadedFiles.length > 0 && !hasSkillMd ? 'A SKILL.md file is required' : undefined);
 
   return (
     <form
@@ -152,27 +154,42 @@ export function SkillForm() {
             onClick={() => setGuideOpen(!guideOpen)}
             type="button"
           >
-            {guideOpen ? <ChevronDown className="size-4" /> : <ChevronRight className="
+            {guideOpen ? (
+              <ChevronDown className="size-4" />
+            ) : (
+              <ChevronRight
+                className="
               size-4
-            " />}
+            "
+              />
+            )}
             Skill Format Guide
           </button>
           {guideOpen && (
-            <div className="
+            <div
+              className="
               border-t border-border px-4 pt-3 pb-4 text-sm text-text-secondary
-            ">
+            "
+            >
               <p className="mb-2">
-                A skill is a folder containing a <code className="
+                A skill is a folder containing a{' '}
+                <code
+                  className="
                   rounded-sm bg-surface-tertiary px-1 py-0.5 text-xs
-                ">SKILL.md</code> file
-                with YAML frontmatter:
+                "
+                >
+                  SKILL.md
+                </code>{' '}
+                file with YAML frontmatter:
               </p>
-              <pre className="
+              <pre
+                className="
                 mb-3 overflow-x-auto rounded-md bg-gray-800 p-3 text-xs
                 text-gray-100
                 dark:bg-gray-950
-              ">
-{`---
+              "
+              >
+                {`---
 name: my-skill-name
 description: A short description of what this skill does
 ---
@@ -181,18 +198,41 @@ description: A short description of what this skill does
 
 Instructions for the AI agent...`}
               </pre>
-              <ul className="
+              <ul
+                className="
                 list-inside list-disc space-y-1 text-xs text-text-tertiary
-              ">
-                <li>The <code className="
+              "
+              >
+                <li>
+                  The{' '}
+                  <code
+                    className="
                   rounded-sm bg-surface-tertiary px-1 py-0.5
-                ">name</code> and <code className="
+                "
+                  >
+                    name
+                  </code>{' '}
+                  and{' '}
+                  <code
+                    className="
                   rounded-sm bg-surface-tertiary px-1 py-0.5
-                ">description</code> fields are required in the frontmatter</li>
-                <li>Additional files (templates, configs, etc.) can be included alongside SKILL.md</li>
+                "
+                  >
+                    description
+                  </code>{' '}
+                  fields are required in the frontmatter
+                </li>
+                <li>
+                  Additional files (templates, configs, etc.) can be included alongside SKILL.md
+                </li>
                 <li>
                   See the full standard at{' '}
-                  <a className="text-accent-text underline" href="https://agentskills.io" rel="noopener noreferrer" target="_blank">
+                  <a
+                    className="text-accent-text underline"
+                    href="https://agentskills.io"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
                     AgentSkills.io
                   </a>
                 </li>
@@ -276,11 +316,7 @@ Instructions for the AI agent...`}
           )}
         </form.Field>
 
-        <FormField
-          error={filesError || undefined}
-          label="Skill Files"
-          required
-        >
+        <FormField error={filesError || undefined} label="Skill Files" required>
           {/* Hidden folder input */}
           <input
             className="hidden"
@@ -337,14 +373,18 @@ Instructions for the AI agent...`}
               </button>
             </div>
           ) : (
-            <div className="
+            <div
+              className="
               rounded-lg border border-border bg-surface-secondary p-3
-            ">
+            "
+            >
               <div className="mb-2 flex items-center justify-between">
-                <span className="
+                <span
+                  className="
                   flex items-center gap-1.5 text-sm font-medium
                   text-text-secondary
-                ">
+                "
+                >
                   <FolderOpen className="size-4" />
                   {uploadedFiles.length} file{uploadedFiles.length !== 1 && 's'}
                 </span>

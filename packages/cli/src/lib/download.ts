@@ -8,9 +8,7 @@ export async function downloadFile(file: SkillFile): Promise<DownloadedFile> {
   const res = await fetch(file.downloadUrl);
 
   if (!res.ok) {
-    throw new Error(
-      `Failed to download "${file.name}": HTTP ${res.status} ${res.statusText}`,
-    );
+    throw new Error(`Failed to download "${file.name}": HTTP ${res.status} ${res.statusText}`);
   }
 
   const arrayBuffer = await res.arrayBuffer();

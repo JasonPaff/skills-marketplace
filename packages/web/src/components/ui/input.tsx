@@ -32,14 +32,8 @@ const inputVariants = cva(
   },
 );
 
-type InputProps = ComponentProps<typeof BaseInput> &
-  VariantProps<typeof inputVariants>;
+type InputProps = ComponentProps<typeof BaseInput> & VariantProps<typeof inputVariants>;
 
 export function Input({ className, error, ...props }: InputProps) {
-  return (
-    <BaseInput
-      className={cn(inputVariants({ error }), className)}
-      {...props}
-    />
-  );
+  return <BaseInput className={cn(inputVariants({ error }), className)} {...props} />;
 }
