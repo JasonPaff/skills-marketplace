@@ -1,3 +1,4 @@
+import matter from 'gray-matter';
 import { z } from 'zod';
 
 import { RATING_MAX, RATING_MIN } from './constants.js';
@@ -32,6 +33,38 @@ export const projectWithClientSchema = projectSchema.extend({
   clientName: z.string(),
 });
 
+// ─── SKILL.md Frontmatter ─────────────────────────────────────────
+
+export const skillMdFrontmatterSchema = z.object({
+  description: z.string().min(1),
+  name: z.string().min(1),
+});
+
+export interface ParsedSkillMd {
+  body: string;
+  frontmatter: z.infer<typeof skillMdFrontmatterSchema>;
+}
+
+/**
+ * Parse a SKILL.md file content string, extracting and validating YAML frontmatter.
+ * Returns the parsed frontmatter and markdown body, or throws with a descriptive message.
+ */
+export function parseSkillMd(content: string): ParsedSkillMd {
+  if (!content.trimStart().startsWith('---')) {
+    throw new Error('SKILL.md is missing YAML frontmatter (must start with ---)');
+  }
+
+  const { content: body, data } = matter(content);
+  const result = skillMdFrontmatterSchema.safeParse(data);
+
+  if (!result.success) {
+    const missing = result.error.issues.map((i) => i.path.join('.')).join(', ');
+    throw new Error(`SKILL.md frontmatter is missing required fields: ${missing}`);
+  }
+
+  return { body, frontmatter: result.data };
+}
+
 // ─── Skill Schemas ────────────────────────────────────────────────
 
 export const skillFileSchema = z.object({
@@ -46,7 +79,25 @@ export const createSkillSchema = z.object({
     .min(1)
     .refine((files) => files.some((f) => f.path === 'SKILL.md'), {
       message: 'A SKILL.md file is required',
-    }),
+    })
+    .refine(
+      (files) => {
+        const skillMd = files.find((f) => f.path === 'SKILL.md');
+        if (!skillMd) return true; // handled by the refine above
+        try {
+          const decoded = typeof atob === 'function'
+            ? atob(skillMd.content)
+            : Buffer.from(skillMd.content, 'base64').toString('utf-8');
+          parseSkillMd(decoded);
+          return true;
+        } catch {
+          return false;
+        }
+      },
+      {
+        message: 'SKILL.md must contain valid YAML frontmatter with name and description',
+      },
+    ),
   name: z
     .string()
     .min(1)

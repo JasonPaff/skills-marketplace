@@ -2,15 +2,19 @@
 
 import {
   type ColumnDef,
+  type ExpandedState,
+  type FilterFn,
   flexRender,
   getCoreRowModel,
+  getExpandedRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  type Row,
   type SortingState,
   useReactTable,
 } from '@tanstack/react-table';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 import { cn } from '@/lib/utils/cn';
 
@@ -18,21 +22,46 @@ interface DataTableProps<TData> {
   className?: string;
   columns: ColumnDef<TData, unknown>[];
   data: TData[];
+  /** Predicate for which rows can expand */
+  getRowCanExpand?: (row: Row<TData>) => boolean;
+  /** External global filter state */
+  globalFilter?: string;
+  /** Custom global filter function */
+  globalFilterFn?: FilterFn<TData>;
+  /** Callback for global filter updates */
+  onGlobalFilterChange?: (value: string) => void;
+  /** Component for expanded row content */
+  renderSubComponent?: React.ComponentType<{ row: Row<TData> }>;
 }
 
-export function DataTable<TData>({ className, columns, data }: DataTableProps<TData>) {
+export function DataTable<TData>({
+  className,
+  columns,
+  data,
+  getRowCanExpand,
+  globalFilter,
+  globalFilterFn,
+  onGlobalFilterChange,
+  renderSubComponent: SubComponent,
+}: DataTableProps<TData>) {
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [expanded, setExpanded] = useState<ExpandedState>({});
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     columns,
     data,
     getCoreRowModel: getCoreRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getRowCanExpand,
     getSortedRowModel: getSortedRowModel(),
+    globalFilterFn,
+    onExpandedChange: setExpanded,
+    onGlobalFilterChange,
     onSortingChange: setSorting,
-    state: { sorting },
+    state: { expanded, globalFilter, sorting },
   });
 
   return (
@@ -60,19 +89,36 @@ export function DataTable<TData>({ className, columns, data }: DataTableProps<TD
         </thead>
         <tbody>
           {table.getRowModel().rows.map((row) => (
-            <tr
-              className="
-                border-b border-gray-100
-                last:border-0
-              "
-              key={row.id}
-            >
-              {row.getVisibleCells().map((cell) => (
-                <td className="px-4 py-3" key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
-            </tr>
+            <React.Fragment key={row.id}>
+              <tr
+                className="
+                  border-b border-gray-100
+                  last:border-0
+                "
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <td className="px-4 py-3" key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+              {SubComponent && row.getIsExpanded() && (
+                <tr>
+                  <td colSpan={row.getVisibleCells().length}>
+                    <div
+                      className="
+                        grid grid-rows-[1fr] opacity-100 transition-all
+                        duration-200 ease-in-out
+                      "
+                    >
+                      <div className="overflow-hidden">
+                        <SubComponent row={row} />
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </React.Fragment>
           ))}
           {table.getRowModel().rows.length === 0 && (
             <tr>

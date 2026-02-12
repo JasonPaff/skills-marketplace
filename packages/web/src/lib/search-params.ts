@@ -1,8 +1,10 @@
 'use client';
 
-import { parseAsString, useQueryStates } from 'nuqs';
+import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
 
 const skillsSearchParamsParsers = {
+  downloads: parseAsInteger,
+  rating: parseAsInteger,
   search: parseAsString.withDefault(''),
 };
 

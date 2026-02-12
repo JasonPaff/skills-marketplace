@@ -1,8 +1,8 @@
 'use client';
 
-import { createSkillSchema } from '@emergent/shared';
+import { createSkillSchema, parseSkillMd } from '@emergent/shared';
 import { useForm } from '@tanstack/react-form';
-import { File, FolderOpen, Trash2, Upload } from 'lucide-react';
+import { Archive, ChevronDown, ChevronRight, File, FolderOpen, Trash2, Upload } from 'lucide-react';
 import { $path } from 'next-typesafe-url';
 import { useRouter } from 'next/navigation';
 import { useCallback, useRef, useState } from 'react';
@@ -12,6 +12,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useCreateSkill } from '@/lib/query/use-create-skill';
+import { extractZipFiles, getZipRootName } from '@/lib/utils/zip';
 
 import { FormField } from './form-field';
 
@@ -20,40 +21,39 @@ interface UploadedFile {
   path: string;
 }
 
+function sanitizeName(raw: string): string {
+  return raw
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+function tryParseFrontmatter(files: UploadedFile[]): {
+  description?: string;
+  error?: string;
+  name?: string;
+} {
+  const skillMd = files.find((f) => f.path === 'SKILL.md');
+  if (!skillMd) return { error: 'A SKILL.md file is required' };
+
+  try {
+    const decoded = atob(skillMd.content);
+    const { frontmatter } = parseSkillMd(decoded);
+    return { description: frontmatter.description, name: frontmatter.name };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Invalid SKILL.md' };
+  }
+}
+
 export function SkillForm() {
   const router = useRouter();
   const [errorMsg, setErrorMsg] = useState('');
+  const [fileError, setFileError] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleFolderSelect = useCallback(async (fileList: FileList) => {
-    const files = await Promise.all(
-      Array.from(fileList).map(async (file) => {
-        const base64 = await fileToBase64(file);
-        // webkitRelativePath gives "folder-name/SKILL.md" — strip the root folder
-        const parts = file.webkitRelativePath.split('/');
-        const relativePath = parts.slice(1).join('/');
-        return { content: base64, path: relativePath };
-      }),
-    );
-    // Filter out empty paths (e.g. the folder itself)
-    setUploadedFiles(files.filter((f) => f.path.length > 0));
-  }, []);
-
-  const removeFile = useCallback((path: string) => {
-    setUploadedFiles((prev) => prev.filter((f) => f.path !== path));
-  }, []);
-
-  const hasSkillMd = uploadedFiles.some((f) => f.path === 'SKILL.md');
-
-  const createMutation = useCreateSkill({
-    onError: (err) => {
-      setErrorMsg(err.message);
-    },
-    onSuccess: (skill) => {
-      router.push($path({ route: '/skills/[id]', routeParams: { id: skill.id } }));
-    },
-  });
+  const [guideOpen, setGuideOpen] = useState(false);
+  const folderInputRef = useRef<HTMLInputElement>(null);
+  const zipInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm({
     defaultValues: {
@@ -75,6 +75,90 @@ export function SkillForm() {
     },
   });
 
+  const autoFillFromFiles = useCallback(
+    (files: UploadedFile[], folderName?: string) => {
+      setFileError('');
+
+      // Auto-fill name from folder/zip name
+      if (folderName) {
+        const sanitized = sanitizeName(folderName);
+        if (sanitized && !form.getFieldValue('name')) {
+          form.setFieldValue('name', sanitized);
+        }
+      }
+
+      // Validate and auto-fill from frontmatter
+      const result = tryParseFrontmatter(files);
+      if (result.error) {
+        setFileError(result.error);
+      } else {
+        if (result.description && !form.getFieldValue('description')) {
+          form.setFieldValue('description', result.description.slice(0, 500));
+        }
+      }
+    },
+    [form],
+  );
+
+  const handleFolderSelect = useCallback(
+    async (fileList: FileList) => {
+      const files = await Promise.all(
+        Array.from(fileList).map(async (file) => {
+          const base64 = await fileToBase64(file);
+          // webkitRelativePath gives "folder-name/SKILL.md" — strip the root folder
+          const parts = file.webkitRelativePath.split('/');
+          const relativePath = parts.slice(1).join('/');
+          return { content: base64, path: relativePath };
+        }),
+      );
+      // Filter out empty paths (e.g. the folder itself)
+      const filtered = files.filter((f) => f.path.length > 0);
+      setUploadedFiles(filtered);
+
+      // Extract folder name from first file's webkitRelativePath
+      const firstFile = Array.from(fileList)[0];
+      const folderName = firstFile?.webkitRelativePath.split('/')[0];
+      autoFillFromFiles(filtered, folderName);
+    },
+    [autoFillFromFiles],
+  );
+
+  const handleZipSelect = useCallback(
+    async (file: globalThis.File) => {
+      try {
+        const files = await extractZipFiles(file);
+        setUploadedFiles(files);
+
+        // Get root name for auto-fill
+        const rootName = getZipRootName(
+          file,
+          files.map((f) => f.path),
+        );
+        autoFillFromFiles(files, rootName);
+      } catch {
+        setFileError('Failed to read zip file');
+      }
+    },
+    [autoFillFromFiles],
+  );
+
+  const removeFile = useCallback((path: string) => {
+    setUploadedFiles((prev) => prev.filter((f) => f.path !== path));
+  }, []);
+
+  const hasSkillMd = uploadedFiles.some((f) => f.path === 'SKILL.md');
+
+  const createMutation = useCreateSkill({
+    onError: (err) => {
+      setErrorMsg(err.message);
+    },
+    onSuccess: (skill) => {
+      router.push($path({ route: '/skills/[id]', routeParams: { id: skill.id } }));
+    },
+  });
+
+  const filesError = fileError || (uploadedFiles.length > 0 && !hasSkillMd ? 'A SKILL.md file is required' : undefined);
+
   return (
     <form
       onSubmit={(e) => {
@@ -83,6 +167,46 @@ export function SkillForm() {
       }}
     >
       <Card className="space-y-5" padding="lg">
+        {/* Collapsible Skill Format Guide */}
+        <div className="rounded-lg border border-gray-200 bg-gray-50">
+          <button
+            className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-medium text-gray-700"
+            onClick={() => setGuideOpen(!guideOpen)}
+            type="button"
+          >
+            {guideOpen ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
+            Skill Format Guide
+          </button>
+          {guideOpen && (
+            <div className="border-t border-gray-200 px-4 pb-4 pt-3 text-sm text-gray-600">
+              <p className="mb-2">
+                A skill is a folder containing a <code className="rounded bg-gray-200 px-1 py-0.5 text-xs">SKILL.md</code> file
+                with YAML frontmatter:
+              </p>
+              <pre className="mb-3 overflow-x-auto rounded-md bg-gray-800 p-3 text-xs text-gray-100">
+{`---
+name: my-skill-name
+description: A short description of what this skill does
+---
+
+# My Skill
+
+Instructions for the AI agent...`}
+              </pre>
+              <ul className="list-inside list-disc space-y-1 text-xs text-gray-500">
+                <li>The <code className="rounded bg-gray-200 px-1 py-0.5">name</code> and <code className="rounded bg-gray-200 px-1 py-0.5">description</code> fields are required in the frontmatter</li>
+                <li>Additional files (templates, configs, etc.) can be included alongside SKILL.md</li>
+                <li>
+                  See the full standard at{' '}
+                  <a className="text-blue-600 underline" href="https://agentskills.io" rel="noopener noreferrer" target="_blank">
+                    AgentSkills.io
+                  </a>
+                </li>
+              </ul>
+            </div>
+          )}
+        </div>
+
         <form.Field
           name="name"
           validators={{
@@ -159,10 +283,11 @@ export function SkillForm() {
         </form.Field>
 
         <FormField
-          error={uploadedFiles.length > 0 && !hasSkillMd ? 'A SKILL.md file is required' : undefined}
+          error={filesError || undefined}
           label="Skill Files"
           required
         >
+          {/* Hidden folder input */}
           <input
             className="hidden"
             onChange={(e) => {
@@ -170,25 +295,51 @@ export function SkillForm() {
                 handleFolderSelect(e.target.files);
               }
             }}
-            ref={fileInputRef}
+            ref={folderInputRef}
             type="file"
             {...({ webkitdirectory: '' } as React.InputHTMLAttributes<HTMLInputElement>)}
           />
+          {/* Hidden zip input */}
+          <input
+            accept=".zip"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleZipSelect(file);
+            }}
+            ref={zipInputRef}
+            type="file"
+          />
 
           {uploadedFiles.length === 0 ? (
-            <button
-              className="
-                flex w-full flex-col items-center gap-2 rounded-lg border-2
-                border-dashed border-gray-300 p-6 text-gray-500 transition
-                hover:border-blue-400 hover:text-blue-600
-              "
-              onClick={() => fileInputRef.current?.click()}
-              type="button"
-            >
-              <Upload className="size-8" />
-              <span className="text-sm font-medium">Browse Folder</span>
-              <span className="text-xs">Select a skill folder containing SKILL.md</span>
-            </button>
+            <div className="flex gap-3">
+              <button
+                className="
+                  flex flex-1 flex-col items-center gap-2 rounded-lg border-2
+                  border-dashed border-gray-300 p-6 text-gray-500 transition
+                  hover:border-blue-400 hover:text-blue-600
+                "
+                onClick={() => folderInputRef.current?.click()}
+                type="button"
+              >
+                <Upload className="size-8" />
+                <span className="text-sm font-medium">Browse Folder</span>
+                <span className="text-xs">Select a skill folder</span>
+              </button>
+              <button
+                className="
+                  flex flex-1 flex-col items-center gap-2 rounded-lg border-2
+                  border-dashed border-gray-300 p-6 text-gray-500 transition
+                  hover:border-blue-400 hover:text-blue-600
+                "
+                onClick={() => zipInputRef.current?.click()}
+                type="button"
+              >
+                <Archive className="size-8" />
+                <span className="text-sm font-medium">Upload Zip</span>
+                <span className="text-xs">Upload a .zip file</span>
+              </button>
+            </div>
           ) : (
             <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
               <div className="mb-2 flex items-center justify-between">
@@ -198,16 +349,22 @@ export function SkillForm() {
                   <FolderOpen className="size-4" />
                   {uploadedFiles.length} file{uploadedFiles.length !== 1 && 's'}
                 </span>
-                <button
-                  className="
-                    text-xs text-blue-600
-                    hover:underline
-                  "
-                  onClick={() => fileInputRef.current?.click()}
-                  type="button"
-                >
-                  Re-select folder
-                </button>
+                <span className="flex gap-2">
+                  <button
+                    className="text-xs text-blue-600 hover:underline"
+                    onClick={() => folderInputRef.current?.click()}
+                    type="button"
+                  >
+                    Re-select folder
+                  </button>
+                  <button
+                    className="text-xs text-blue-600 hover:underline"
+                    onClick={() => zipInputRef.current?.click()}
+                    type="button"
+                  >
+                    Re-upload zip
+                  </button>
+                </span>
               </div>
               <ul className="space-y-1">
                 {uploadedFiles.map((file) => (

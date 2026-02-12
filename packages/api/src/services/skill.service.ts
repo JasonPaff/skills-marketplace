@@ -1,4 +1,5 @@
 import type { CreateSkill, ForkSkill, skillsQuerySchema } from '@emergent/shared';
+import { parseSkillMd } from '@emergent/shared';
 import type { z } from 'zod';
 
 import { HTTPException } from 'hono/http-exception';
@@ -18,6 +19,20 @@ export function createSkillService(queries: SkillQueries, github: GitHubClient) 
   return {
     async createSkill(data: CreateSkill) {
       const { description, files, name } = data;
+
+      // Validate SKILL.md frontmatter before committing
+      const skillMdFile = files.find((f) => f.path === 'SKILL.md');
+      if (!skillMdFile) {
+        throw new HTTPException(400, { message: 'A SKILL.md file is required' });
+      }
+
+      try {
+        const decoded = Buffer.from(skillMdFile.content, 'base64').toString('utf-8');
+        parseSkillMd(decoded);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Invalid SKILL.md';
+        throw new HTTPException(400, { message });
+      }
 
       // Determine GitHub path
       const githubPath = deriveGithubPath(name);

@@ -2,7 +2,7 @@ import { $path } from 'next-typesafe-url';
 import { Suspense } from 'react';
 
 import { PageHeader } from '@/components/layout/page-header';
-import { SkillsList } from '@/components/skills/skills-list';
+import { SkillsTable } from '@/components/skills/skills-table';
 
 export default function Home() {
   return (
@@ -19,7 +19,7 @@ export default function Home() {
         title="Detergent Skills Marketplace"
       />
       <Suspense fallback={<div className="py-12 text-center text-gray-500">Loading skills...</div>}>
-        <SkillsList />
+        <SkillsTable />
       </Suspense>
     </main>
   );
