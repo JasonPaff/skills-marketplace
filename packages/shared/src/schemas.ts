@@ -56,8 +56,8 @@ export function parseSkillMd(content: string): ParsedSkillMd {
   const result = skillMdFrontmatterSchema.safeParse(data);
 
   if (!result.success) {
-    const missing = result.error.issues.map((i) => i.path.join('.')).join(', ');
-    throw new Error(`SKILL.md frontmatter is missing required fields: ${missing}`);
+    const issues = result.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join(', ');
+    throw new Error(`SKILL.md frontmatter validation failed: ${issues}`);
   }
 
   return { body, frontmatter: result.data };
@@ -66,11 +66,18 @@ export function parseSkillMd(content: string): ParsedSkillMd {
 // ─── AGENT.md Frontmatter ────────────────────────────────────────
 
 export const agentMdFrontmatterSchema = z.object({
-  color: z.string().optional(),
+  color: z.string().nullable().optional(),
   description: z.string().min(1),
-  model: z.string().optional(),
+  model: z.string().nullable().optional(),
   name: z.string().min(1),
-  tools: z.array(z.string()).optional(),
+  tools: z.preprocess(
+    (val) => {
+      if (val == null) return undefined;
+      if (typeof val === 'string') return val.split(',').map((s) => s.trim()).filter(Boolean);
+      return val;
+    },
+    z.array(z.string()).optional(),
+  ),
 });
 
 export interface ParsedAgentMd {
@@ -91,8 +98,8 @@ export function parseAgentMd(content: string): ParsedAgentMd {
   const result = agentMdFrontmatterSchema.safeParse(data);
 
   if (!result.success) {
-    const missing = result.error.issues.map((i) => i.path.join('.')).join(', ');
-    throw new Error(`AGENT.md frontmatter is missing required fields: ${missing}`);
+    const issues = result.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join(', ');
+    throw new Error(`AGENT.md frontmatter validation failed: ${issues}`);
   }
 
   return { body, frontmatter: result.data };
@@ -103,7 +110,14 @@ export function parseAgentMd(content: string): ParsedAgentMd {
 export const ruleMdFrontmatterSchema = z.object({
   description: z.string().min(1),
   name: z.string().min(1),
-  paths: z.array(z.string()).optional(),
+  paths: z.preprocess(
+    (val) => {
+      if (val == null) return undefined;
+      if (typeof val === 'string') return val.split(',').map((s) => s.trim()).filter(Boolean);
+      return val;
+    },
+    z.array(z.string()).optional(),
+  ),
 });
 
 export interface ParsedRuleMd {
@@ -124,8 +138,8 @@ export function parseRuleMd(content: string): ParsedRuleMd {
   const result = ruleMdFrontmatterSchema.safeParse(data);
 
   if (!result.success) {
-    const missing = result.error.issues.map((i) => i.path.join('.')).join(', ');
-    throw new Error(`RULE.md frontmatter is missing required fields: ${missing}`);
+    const issues = result.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join(', ');
+    throw new Error(`RULE.md frontmatter validation failed: ${issues}`);
   }
 
   return { body, frontmatter: result.data };

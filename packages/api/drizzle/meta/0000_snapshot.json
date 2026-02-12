@@ -1,13 +1,96 @@
 {
-  "id": "e378a63e-9b81-48c9-ace2-0bc5ba01b571",
+  "id": "6811075d-d094-4de2-870b-023f22d746d1",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.agents": {
+      "name": "agents",
+      "schema": "",
+      "columns": {
+        "color": {
+          "name": "color",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "description": {
+          "name": "description",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "download_count": {
+          "name": "download_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "github_path": {
+          "name": "github_path",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "model": {
+          "name": "model",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tools": {
+          "name": "tools",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "uploaded_at": {
+          "name": "uploaded_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.clients": {
       "name": "clients",
       "schema": "",
       "columns": {
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "id": {
           "name": "id",
           "type": "uuid",
@@ -20,19 +103,6 @@
           "type": "varchar(200)",
           "primaryKey": false,
           "notNull": true
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
         }
       },
       "indexes": {},
@@ -55,12 +125,26 @@
       "name": "project_skills",
       "schema": "",
       "columns": {
+        "added_at": {
+          "name": "added_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
         "id": {
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
           "notNull": true,
           "default": "gen_random_uuid()"
+        },
+        "is_customized": {
+          "name": "is_customized",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         },
         "project_id": {
           "name": "project_id",
@@ -73,20 +157,6 @@
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
-        },
-        "is_customized": {
-          "name": "is_customized",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "added_at": {
-          "name": "added_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
         }
       },
       "indexes": {
@@ -150,30 +220,31 @@
       "name": "projects",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
         "client_id": {
           "name": "client_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
-        "name": {
-          "name": "name",
-          "type": "varchar(200)",
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": "now()"
         },
         "description": {
           "name": "description",
           "type": "text",
           "primaryKey": false,
           "notNull": false
+        },
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "is_active": {
           "name": "is_active",
@@ -182,12 +253,11 @@
           "notNull": true,
           "default": true
         },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
+        "name": {
+          "name": "name",
+          "type": "varchar(200)",
           "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
+          "notNull": true
         }
       },
       "indexes": {},
@@ -212,10 +282,29 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.skills": {
-      "name": "skills",
+    "public.rules": {
+      "name": "rules",
       "schema": "",
       "columns": {
+        "description": {
+          "name": "description",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "download_count": {
+          "name": "download_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "github_path": {
+          "name": "github_path",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": true
+        },
         "id": {
           "name": "id",
           "type": "uuid",
@@ -229,29 +318,11 @@
           "primaryKey": false,
           "notNull": true
         },
-        "description": {
-          "name": "description",
-          "type": "varchar(500)",
+        "paths": {
+          "name": "paths",
+          "type": "text[]",
           "primaryKey": false,
-          "notNull": true
-        },
-        "category": {
-          "name": "category",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "github_path": {
-          "name": "github_path",
-          "type": "varchar(500)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "uploaded_by": {
-          "name": "uploaded_by",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "uploaded_at": {
           "name": "uploaded_at",
@@ -259,6 +330,25 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.skills": {
+      "name": "skills",
+      "schema": "",
+      "columns": {
+        "description": {
+          "name": "description",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": true
         },
         "download_count": {
           "name": "download_count",
@@ -267,39 +357,37 @@
           "notNull": true,
           "default": 0
         },
-        "total_rating": {
-          "name": "total_rating",
-          "type": "integer",
+        "github_path": {
+          "name": "github_path",
+          "type": "varchar(500)",
           "primaryKey": false,
-          "notNull": true,
-          "default": 0
+          "notNull": true
         },
-        "rating_count": {
-          "name": "rating_count",
-          "type": "integer",
-          "primaryKey": false,
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
           "notNull": true,
-          "default": 0
+          "default": "gen_random_uuid()"
         },
-        "average_rating": {
-          "name": "average_rating",
-          "type": "numeric(3, 2)",
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
           "primaryKey": false,
-          "notNull": true,
-          "default": "'0'"
-        },
-        "is_global": {
-          "name": "is_global",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
+          "notNull": true
         },
         "parent_skill_id": {
           "name": "parent_skill_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
+        },
+        "uploaded_at": {
+          "name": "uploaded_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         },
         "version": {
           "name": "version",

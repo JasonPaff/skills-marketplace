@@ -1,39 +1,58 @@
+CREATE TABLE "agents" (
+	"color" varchar(50),
+	"description" varchar(500) NOT NULL,
+	"download_count" integer DEFAULT 0 NOT NULL,
+	"github_path" varchar(500) NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"model" varchar(100),
+	"name" varchar(100) NOT NULL,
+	"tools" text[],
+	"uploaded_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "clients" (
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"description" text,
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" varchar(200) NOT NULL,
-	"description" text,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "clients_name_unique" UNIQUE("name")
 );
 --> statement-breakpoint
 CREATE TABLE "project_skills" (
+	"added_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"project_id" uuid NOT NULL,
-	"skill_id" uuid NOT NULL,
 	"is_customized" boolean DEFAULT false NOT NULL,
-	"added_at" timestamp with time zone DEFAULT now() NOT NULL
+	"project_id" uuid NOT NULL,
+	"skill_id" uuid NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "projects" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"client_id" uuid NOT NULL,
-	"name" varchar(200) NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"description" text,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"is_active" boolean DEFAULT true NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+	"name" varchar(200) NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "rules" (
+	"description" varchar(500) NOT NULL,
+	"download_count" integer DEFAULT 0 NOT NULL,
+	"github_path" varchar(500) NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"name" varchar(100) NOT NULL,
+	"paths" text[],
+	"uploaded_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "skills" (
+	"description" varchar(500) NOT NULL,
+	"download_count" integer DEFAULT 0 NOT NULL,
+	"github_path" varchar(500) NOT NULL,
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" varchar(100) NOT NULL,
-	"description" varchar(500) NOT NULL,
-	"category" varchar(50) NOT NULL,
-	"github_path" varchar(500) NOT NULL,
-	"uploaded_by" varchar(100) NOT NULL,
-	"uploaded_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"download_count" integer DEFAULT 0 NOT NULL,
-	"is_global" boolean DEFAULT true NOT NULL,
 	"parent_skill_id" uuid,
+	"uploaded_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"version" varchar(20) DEFAULT '1.0.0' NOT NULL
 );
 --> statement-breakpoint
