@@ -1,12 +1,12 @@
 'use client';
 
 import type { Skill } from '@emergent/shared';
-import type { ColumnDef, FilterFn, Row } from '@tanstack/react-table';
+import type { ColumnDef, Row } from '@tanstack/react-table';
 
 import { Check, ChevronRight, Copy, Download } from 'lucide-react';
 import { $path } from 'next-typesafe-url';
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { ErrorAlert } from '@/components/layout/error-alert';
 import { Button } from '@/components/ui/button';
@@ -17,18 +17,10 @@ import { Tooltip } from '@/components/ui/tooltip';
 import { downloadSkill } from '@/lib/api';
 import { useSkills } from '@/lib/query/use-skills';
 import { useSkillsSearchParams } from '@/lib/search-params';
+import { useDebouncedValue } from '@/lib/use-debounced-value';
 import { formatDate, formatDownloads } from '@/lib/utils/format';
 
 import { StarRating } from './star-rating';
-
-// ─── Global Filter ───────────────────────────────────────────────
-
-const globalFilterFn: FilterFn<Skill> = (row, _columnId, filterValue: string) => {
-  const query = filterValue.toLowerCase();
-  const name = row.original.name.toLowerCase();
-  const description = row.original.description.toLowerCase();
-  return name.includes(query) || description.includes(query);
-};
 
 // ─── Column Definitions ──────────────────────────────────────────
 
@@ -161,7 +153,14 @@ const downloadThresholds = [
 
 export function SkillsTable() {
   const [{ downloads, rating, search }, setParams] = useSkillsSearchParams();
-  const { data: skills, error, isLoading } = useSkills({ search });
+  const [localSearch, setLocalSearch] = useState(search ?? '');
+  const debouncedSearch = useDebouncedValue(localSearch, 300);
+  const { data: skills, error, isLoading } = useSkills({ search: debouncedSearch || undefined });
+
+  // Sync debounced value → URL params
+  useEffect(() => {
+    setParams({ search: debouncedSearch || null });
+  }, [debouncedSearch, setParams]);
 
   const filteredSkills = useMemo(() => {
     if (!skills) return [];
@@ -186,10 +185,10 @@ export function SkillsTable() {
       <div className="flex flex-wrap gap-4">
         <Input
           className="w-64"
-          onChange={(e) => setParams({ search: e.target.value || null })}
+          onChange={(e) => setLocalSearch(e.target.value)}
           placeholder="Search skills..."
           type="text"
-          value={search}
+          value={localSearch}
         />
         <Select
           onChange={(e) => setParams({ rating: Number(e.target.value) || null })}
@@ -222,14 +221,11 @@ export function SkillsTable() {
         columns={columns}
         data={filteredSkills}
         getRowCanExpand={() => true}
-        globalFilter={search}
-        globalFilterFn={globalFilterFn}
-        onGlobalFilterChange={(value) => setParams({ search: value || null })}
         renderSubComponent={SkillDetailPanel}
       />
 
       {/* Empty state with link to upload */}
-      {filteredSkills.length === 0 && !search && (
+      {filteredSkills.length === 0 && !localSearch && (
         <div className="
           rounded-lg border border-dashed border-gray-300 p-12 text-center
         ">
