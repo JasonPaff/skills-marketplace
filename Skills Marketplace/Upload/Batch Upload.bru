@@ -1,0 +1,35 @@
+meta {
+  name: Batch Upload
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://skills-marketplace-api.vercel.app/api/upload/batch
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "skills": [
+      {
+        "name": "my-skill",
+        "description": "A sample skill",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "content": "LS0tCm5hbWU6IE15IFNraWxsCmRlc2NyaXB0aW9uOiBBIHNhbXBsZSBza2lsbAotLS0KCkluc3RydWN0aW9ucyBoZXJl"
+          }
+        ]
+      }
+    ],
+    "agents": [],
+    "rules": []
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
