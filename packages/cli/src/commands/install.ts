@@ -1,4 +1,4 @@
-import type { InstallTarget, Skill, SkillScope } from '@emergent/shared';
+import type { InstallTarget, Skill } from '@emergent/shared';
 
 import {
   cancel,
@@ -8,10 +8,9 @@ import {
   multiselect,
   note,
   outro,
-  select,
   spinner,
 } from '@clack/prompts';
-import { INSTALL_TARGETS, SKILL_SCOPES } from '@emergent/shared';
+import { INSTALL_TARGETS } from '@emergent/shared';
 import chalk from 'chalk';
 import { Command } from 'commander';
 import fs from 'node:fs/promises';
@@ -87,9 +86,8 @@ function stripGithubPrefix(filePath: string, githubPath: string): string {
 export const installCommand = new Command('install')
   .description('Install a skill from the marketplace')
   .argument('<skill>', 'Skill name or UUID')
-  .option('--scope <scope>', 'Installation scope (global or project)')
   .option('--provider <provider>', 'Target provider (claude or copilot)')
-  .action(async (skillArg: string, options: { provider?: string; scope?: string }) => {
+  .action(async (skillArg: string, options: { provider?: string }) => {
     intro(chalk.bold.cyan(' Detergent Skills Installer '));
 
     const s = spinner();
@@ -108,31 +106,7 @@ export const installCommand = new Command('install')
       process.exit(1);
     }
 
-    // ── 2. Determine scope ────────────────────────────────────
-
-    let scope: SkillScope;
-
-    if (options.scope && SKILL_SCOPES.includes(options.scope as SkillScope)) {
-      scope = options.scope as SkillScope;
-    } else {
-      const scopeResult = await select<SkillScope>({
-        message: 'Where should this skill be installed?',
-        options: SKILL_SCOPES.map((s) => ({
-          hint: s === 'global' ? 'Available everywhere' : 'Only in this project',
-          label: s.charAt(0).toUpperCase() + s.slice(1),
-          value: s,
-        })),
-      });
-
-      if (isCancel(scopeResult)) {
-        cancel('Installation cancelled.');
-        process.exit(0);
-      }
-
-      scope = scopeResult;
-    }
-
-    // ── 3. Determine providers ────────────────────────────────
+    // ── 2. Determine providers ────────────────────────────────
 
     let selectedTargets: InstallTarget[];
 
@@ -161,7 +135,7 @@ export const installCommand = new Command('install')
       selectedTargets = providerResult;
     }
 
-    // ── 4. Download files ─────────────────────────────────────
+    // ── 3. Download files ─────────────────────────────────────
 
     let downloadResponse;
 
@@ -187,7 +161,7 @@ export const installCommand = new Command('install')
       process.exit(1);
     }
 
-    // ── 5. Install per provider ───────────────────────────────
+    // ── 4. Install per provider ───────────────────────────────
 
     const providerStats: Array<{
       displayPath: string;
@@ -198,8 +172,8 @@ export const installCommand = new Command('install')
 
     for (const target of selectedTargets) {
       const adapter = getProvider(target);
-      const targetDir = adapter.getTargetDirectory(scope, skill.name);
-      const displayPath = adapter.getDisplayPath(scope, skill.name);
+      const targetDir = adapter.getTargetDirectory(skill.name);
+      const displayPath = adapter.getDisplayPath(skill.name);
 
       // Build target paths for each file.
       const fileTargets = downloadedFiles.map((file) => {
@@ -247,11 +221,10 @@ export const installCommand = new Command('install')
       });
     }
 
-    // ── 6. Summary ────────────────────────────────────────────
+    // ── 5. Summary ────────────────────────────────────────────
 
     const summaryLines: string[] = [
       `${chalk.bold('Skill:')}  ${skill.name} v${skill.version}`,
-      `${chalk.bold('Scope:')}  ${scope}`,
       '',
     ];
 

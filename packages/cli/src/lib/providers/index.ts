@@ -1,4 +1,4 @@
-import type { InstallTarget, SkillScope } from '@emergent/shared';
+import type { InstallTarget } from '@emergent/shared';
 
 import { claudeAdapter } from './claude.js';
 import { copilotAdapter } from './copilot.js';
@@ -21,13 +21,13 @@ export interface ProviderAdapter {
    * Returns a user-friendly display path (using `~` for home directory)
    * for showing in CLI output.
    */
-  getDisplayPath(scope: SkillScope, skillName: string): string;
+  getDisplayPath(skillName: string): string;
 
   /**
    * Returns the absolute path to the directory where skill files
    * should be installed for this provider.
    */
-  getTargetDirectory(scope: SkillScope, skillName: string): string;
+  getTargetDirectory(skillName: string): string;
 
   /** Display name for the provider (e.g., "Claude Code") */
   name: string;
