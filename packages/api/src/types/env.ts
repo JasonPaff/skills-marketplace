@@ -1,6 +1,6 @@
 import type { Database } from '../db/index.js';
 import type { GitHubClient } from '../lib/github.js';
-import type { ClientService, ProjectService, SkillService, UploadService } from '../services/index.js';
+import type { SkillService, UploadService } from '../services/index.js';
 
 /**
  * Consolidated Hono environment type for the API.
@@ -18,10 +18,8 @@ export type AppEnv = {
     WEB_URL?: string;
   };
   Variables: {
-    clientService: ClientService;
     db: Database;
     github: GitHubClient;
-    projectService: ProjectService;
     skillService: SkillService;
     uploadService: UploadService;
   };

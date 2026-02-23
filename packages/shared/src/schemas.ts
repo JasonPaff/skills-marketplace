@@ -1,36 +1,6 @@
 import matter from 'gray-matter';
 import { z } from 'zod';
 
-// ─── Client Schemas ───────────────────────────────────────────────
-
-export const createClientSchema = z.object({
-  description: z.string().max(1000).nullable().optional(),
-  name: z.string().min(1).max(200),
-});
-
-export const clientSchema = createClientSchema.extend({
-  createdAt: z.iso.datetime(),
-  id: z.uuid(),
-});
-
-// ─── Project Schemas ──────────────────────────────────────────────
-
-export const createProjectSchema = z.object({
-  clientId: z.uuid(),
-  description: z.string().max(1000).nullable().optional(),
-  name: z.string().min(1).max(200),
-});
-
-export const projectSchema = createProjectSchema.extend({
-  createdAt: z.iso.datetime(),
-  id: z.uuid(),
-  isActive: z.boolean(),
-});
-
-export const projectWithClientSchema = projectSchema.extend({
-  clientName: z.string(),
-});
-
 // ─── SKILL.md Frontmatter ─────────────────────────────────────────
 
 export const skillMdFrontmatterSchema = z.object({
@@ -187,14 +157,8 @@ export const skillSchema = createSkillSchema.omit({ files: true }).extend({
   downloadCount: z.number().int().min(0),
   githubPath: z.string(),
   id: z.uuid(),
-  parentSkillId: z.uuid().nullable(),
   uploadedAt: z.iso.datetime(),
   version: z.string(),
-});
-
-export const forkSkillSchema = z.object({
-  newName: z.string().min(1).max(100).optional(),
-  projectId: z.uuid(),
 });
 
 // ─── Agent Schemas ───────────────────────────────────────────────
@@ -311,8 +275,4 @@ export const createBatchUploadSchema = z
 
 export const skillsQuerySchema = z.object({
   search: z.string().optional(),
-});
-
-export const projectsQuerySchema = z.object({
-  clientId: z.uuid().optional(),
 });

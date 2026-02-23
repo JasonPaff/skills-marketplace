@@ -1,4 +1,4 @@
-import type { CreateSkill, ForkSkill, skillsQuerySchema } from '@emergent/shared';
+import type { CreateSkill, skillsQuerySchema } from '@emergent/shared';
 import type { z } from 'zod';
 
 import { parseSkillMd } from '@emergent/shared';
@@ -13,7 +13,7 @@ type SkillsQuery = z.infer<typeof skillsQuerySchema>;
 
 export function createSkillService(queries: SkillQueries, github: GitHubClient) {
   function deriveGithubPath(name: string): string {
-    return `skills/global/${name}`;
+    return `skills/${name}`;
   }
 
   return {
@@ -72,48 +72,6 @@ export function createSkillService(queries: SkillQueries, github: GitHubClient) 
         githubPath: skill.githubPath,
         skill,
       };
-    },
-
-    async forkSkill(id: string, data: ForkSkill) {
-      const { newName, projectId } = data;
-
-      // Get original skill
-      const original = await queries.selectSkillById(id);
-
-      if (!original) {
-        throw new HTTPException(404, { message: 'Skill not found' });
-      }
-
-      // Get project
-      const project = await queries.selectProjectById(projectId);
-
-      if (!project) {
-        throw new HTTPException(404, { message: 'Project not found' });
-      }
-
-      const skillName = newName ?? original.name;
-      const projectSlug = project.name.toLowerCase().replace(/\s+/g, '-');
-      const githubPath = `skills/projects/${projectSlug}/${skillName}`;
-
-      // TODO: Copy files from original.githubPath to new githubPath via GitHub API
-
-      // Create new skill record
-      const forked = await queries.insertSkill({
-        description: original.description,
-        githubPath,
-        name: skillName,
-        parentSkillId: original.id,
-        version: original.version,
-      });
-
-      // Create project_skills entry
-      await queries.insertProjectSkill({
-        isCustomized: true,
-        projectId,
-        skillId: forked.id,
-      });
-
-      return forked;
     },
 
     async getSkillById(id: string) {

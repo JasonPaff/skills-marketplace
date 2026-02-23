@@ -12,12 +12,10 @@ import type { AppEnv } from './types/env.js';
 
 import { createDb } from './db/index.js';
 import { createGitHubClient } from './lib/github.js';
-import { createAgentQueries, createClientQueries, createProjectQueries, createRuleQueries, createSkillQueries } from './queries/index.js';
-import { clientsRouter } from './routes/clients.js';
-import { projectsRouter } from './routes/projects.js';
+import { createAgentQueries, createRuleQueries, createSkillQueries } from './queries/index.js';
 import { skillsRouter } from './routes/skills.js';
 import { uploadRouter } from './routes/upload.js';
-import { createClientService, createProjectService, createSkillService, createUploadService } from './services/index.js';
+import { createSkillService, createUploadService } from './services/index.js';
 
 const app = new Hono<AppEnv>();
 
@@ -46,18 +44,12 @@ app.use('/api/*', async (c, next) => {
   c.set('github', github);
 
   const agentQueries = createAgentQueries(db);
-  const clientQueries = createClientQueries(db);
-  const projectQueries = createProjectQueries(db);
   const ruleQueries = createRuleQueries(db);
   const skillQueries = createSkillQueries(db);
 
-  const clientService = createClientService(clientQueries);
-  const projectService = createProjectService(projectQueries);
   const skillService = createSkillService(skillQueries, github);
   const uploadService = createUploadService(skillQueries, agentQueries, ruleQueries, github);
 
-  c.set('clientService', clientService);
-  c.set('projectService', projectService);
   c.set('skillService', skillService);
   c.set('uploadService', uploadService);
 
@@ -69,8 +61,6 @@ app.use('/api/*', async (c, next) => {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- used only for AppType export
 const routes = app
   .route('/api/skills', skillsRouter)
-  .route('/api/projects', projectsRouter)
-  .route('/api/clients', clientsRouter)
   .route('/api/upload', uploadRouter);
 
 // ─── Health Check ─────────────────────────────────────────────────

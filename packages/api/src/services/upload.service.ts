@@ -38,7 +38,7 @@ export function createUploadService(
           });
         }
 
-        const githubPath = `skills/global/${skill.name}`;
+        const githubPath = `skills/${skill.name}`;
         return { ...skill, githubPath };
       });
 
@@ -62,7 +62,7 @@ export function createUploadService(
           });
         }
 
-        const githubPath = `agents/global/${agent.name}`;
+        const githubPath = `agents/${agent.name}`;
         return { ...agent, frontmatter, githubPath };
       });
 
@@ -86,7 +86,7 @@ export function createUploadService(
           });
         }
 
-        const githubPath = `rules/global/${rule.name}`;
+        const githubPath = `rules/${rule.name}`;
         return { ...rule, frontmatter, githubPath };
       });
 

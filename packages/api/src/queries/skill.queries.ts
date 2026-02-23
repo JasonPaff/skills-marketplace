@@ -2,7 +2,7 @@ import { and, eq, ilike, sql } from 'drizzle-orm';
 
 import type { Database } from '../db/index.js';
 
-import { projects, projectSkills, skills } from '../db/schema.js';
+import { skills } from '../db/schema.js';
 
 export type SkillQueries = ReturnType<typeof createSkillQueries>;
 
@@ -15,28 +15,14 @@ export function createSkillQueries(db: Database) {
         .where(eq(skills.id, id));
     },
 
-    async insertProjectSkill(values: {
-      isCustomized: boolean;
-      projectId: string;
-      skillId: string;
-    }) {
-      await db.insert(projectSkills).values(values);
-    },
-
     async insertSkill(values: {
       description: string;
       githubPath: string;
       name: string;
-      parentSkillId?: string;
       version?: string;
     }) {
       const [skill] = await db.insert(skills).values(values).returning();
       return skill;
-    },
-
-    async selectProjectById(projectId: string) {
-      const [project] = await db.select().from(projects).where(eq(projects.id, projectId));
-      return project as typeof project | undefined;
     },
 
     async selectSkillById(id: string) {
