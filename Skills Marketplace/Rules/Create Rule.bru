@@ -1,0 +1,29 @@
+meta {
+  name: Create Rule
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://skills-marketplace-api.vercel.app/api/rules
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "my-rule",
+    "description": "A sample rule",
+    "files": [
+      {
+        "path": "RULE.md",
+        "content": "LS0tCm5hbWU6IE15IFJ1bGUKZGVzY3JpcHRpb246IEEgc2FtcGxlIHJ1bGUKLS0tCgpSdWxlIGNvbnRlbnQgaGVyZQ=="
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

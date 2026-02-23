@@ -1,0 +1,29 @@
+meta {
+  name: Create Agent
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://skills-marketplace-api.vercel.app/api/agents
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "my-agent",
+    "description": "A sample agent",
+    "files": [
+      {
+        "path": "AGENT.md",
+        "content": "LS0tCm5hbWU6IE15IEFnZW50CmRlc2NyaXB0aW9uOiBBIHNhbXBsZSBhZ2VudAotLS0KCkluc3RydWN0aW9ucyBoZXJl"
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,20 @@
+meta {
+  name: List Agents
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://skills-marketplace-api.vercel.app/api/agents
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~search:
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
