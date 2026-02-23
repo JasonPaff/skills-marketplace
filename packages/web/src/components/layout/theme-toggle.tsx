@@ -34,8 +34,7 @@ export function ThemeToggle() {
     <Popover.Root>
       <Popover.Trigger
         className="
-          fixed top-4 right-4 z-50 rounded-full border border-border bg-surface
-          p-2.5 shadow-md transition
+          rounded-full border border-border bg-surface p-2.5 transition
           hover:bg-surface-secondary
         "
       >

@@ -1,3 +1,7 @@
+import { PageHeader } from '@/components/layout/page-header';
+
+import { MarketplaceTable } from './_components/marketplace-table';
+
 export default function Home() {
   return (
     <main
@@ -7,7 +11,12 @@ export default function Home() {
         lg:px-8
       "
     >
-      Coming Soon!
+      <PageHeader
+        action={{ href: '/upload', label: 'Upload' }}
+        description="Discover, share, and install AI coding assistant skills, agents, and rules."
+        title="Marketplace"
+      />
+      <MarketplaceTable />
     </main>
   );
 }

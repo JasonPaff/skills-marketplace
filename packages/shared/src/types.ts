@@ -3,8 +3,12 @@ import type { z } from 'zod';
 import type {
   agentSchema,
   agentsQuerySchema,
+  bundleSchema,
+  bundlesQuerySchema,
+  bundleWithItemsSchema,
   createAgentSchema,
   createBatchUploadSchema,
+  createBundleSchema,
   createRuleSchema,
   createSkillSchema,
   ruleSchema,
@@ -28,11 +32,22 @@ export interface ApiError {
   message: string;
   statusCode: number;
 }
+
 export interface ApiResponse<T> {
   data: T;
 }
+export type Bundle = z.infer<typeof bundleSchema>;
+export interface BundleDownloadResponse {
+  bundle: Bundle;
+  files: DownloadableFile[];
+  githubPath: string;
+}
+
+export type BundlesQuery = z.infer<typeof bundlesQuerySchema>;
+export type BundleWithItems = z.infer<typeof bundleWithItemsSchema>;
 export type CreateAgent = z.infer<typeof createAgentSchema>;
 export type CreateBatchUpload = z.infer<typeof createBatchUploadSchema>;
+export type CreateBundle = z.infer<typeof createBundleSchema>;
 
 export type CreateRule = z.infer<typeof createRuleSchema>;
 

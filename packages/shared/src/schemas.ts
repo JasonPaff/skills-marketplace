@@ -255,6 +255,30 @@ export const ruleSchema = createRuleSchema.omit({ files: true }).extend({
   uploadedAt: z.iso.datetime(),
 });
 
+// ─── Bundle Schemas ─────────────────────────────────────────────
+
+export const createBundleSchema = z.object({
+  description: z.string().min(1).max(500),
+  name: z
+    .string()
+    .min(1)
+    .max(100)
+    .regex(/^[a-z0-9-]+$/, 'Bundle name must be lowercase alphanumeric with hyphens'),
+});
+
+export const bundleSchema = createBundleSchema.extend({
+  downloadCount: z.number().int().min(0),
+  githubPath: z.string(),
+  id: z.uuid(),
+  uploadedAt: z.iso.datetime(),
+});
+
+export const bundleWithItemsSchema = bundleSchema.extend({
+  agents: z.array(agentSchema).optional(),
+  rules: z.array(ruleSchema).optional(),
+  skills: z.array(skillSchema).optional(),
+});
+
 // ─── Batch Upload Schema ─────────────────────────────────────────
 
 export const createBatchUploadSchema = z
@@ -282,5 +306,9 @@ export const agentsQuerySchema = z.object({
 });
 
 export const rulesQuerySchema = z.object({
+  search: z.string().optional(),
+});
+
+export const bundlesQuerySchema = z.object({
   search: z.string().optional(),
 });

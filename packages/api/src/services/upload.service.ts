@@ -2,6 +2,7 @@ import type { CreateBatchUpload } from '@emergent/shared';
 
 import type { GitHubClient } from '../lib/github.js';
 import type { AgentService } from './agent.service.js';
+import type { BundleService } from './bundle.service.js';
 import type { RuleService } from './rule.service.js';
 import type { SkillService } from './skill.service.js';
 
@@ -12,6 +13,7 @@ export function createUploadService(
   agentService: AgentService,
   ruleService: RuleService,
   github: GitHubClient,
+  bundleService: BundleService,
 ) {
   return {
     async batchUpload(data: CreateBatchUpload) {
@@ -125,8 +127,32 @@ export function createUploadService(
         insertedRules.push(record);
       }
 
+      // ── Phase 4: Auto-create bundle for multi-item uploads ─────────
+
+      const totalInserted = insertedSkills.length + insertedAgents.length + insertedRules.length;
+
+      let bundle = null;
+      if (totalInserted > 1) {
+        const nameParts = [
+          ...insertedSkills.map((s) => s.name),
+          ...insertedAgents.map((a) => a.name),
+          ...insertedRules.map((r) => r.name),
+        ];
+        const bundleName =
+          nameParts.length <= 3 ? nameParts.join(', ') : `batch-${Date.now()}`;
+
+        bundle = await bundleService.createBundleWithLinks({
+          agentIds: insertedAgents.map((a) => a.id),
+          description: `Batch upload containing ${totalInserted} items: ${nameParts.join(', ')}`,
+          name: bundleName,
+          ruleIds: insertedRules.map((r) => r.id),
+          skillIds: insertedSkills.map((s) => s.id),
+        });
+      }
+
       return {
         agents: insertedAgents,
+        bundle,
         rules: insertedRules,
         skills: insertedSkills,
       };

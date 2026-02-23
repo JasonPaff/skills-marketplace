@@ -8,6 +8,13 @@
       "when": 1771874866076,
       "tag": "0000_mushy_mephisto",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1771883297809,
+      "tag": "0001_light_abomination",
+      "breakpoints": true
     }
   ]
 }
