@@ -43,10 +43,10 @@ importers:
         version: link:../shared
       '@hono/node-server':
         specifier: ^1.13.0
-        version: 1.19.9(hono@4.11.9)
+        version: 1.19.9(hono@4.12.2)
       '@hono/zod-validator':
         specifier: ^0.7.6
-        version: 0.7.6(hono@4.11.9)(zod@4.3.6)
+        version: 0.7.6(hono@4.12.2)(zod@4.3.6)
       '@neondatabase/serverless':
         specifier: ^1.0.0
         version: 1.0.2
@@ -57,8 +57,8 @@ importers:
         specifier: ^0.8.3
         version: 0.8.3(drizzle-orm@0.45.1(@neondatabase/serverless@1.0.2)(@types/pg@8.11.6))(zod@4.3.6)
       hono:
-        specifier: ^4.7.0
-        version: 4.11.9
+        specifier: ^4.12.2
+        version: 4.12.2
       octokit:
         specifier: ^5.0.0
         version: 5.0.5
@@ -97,8 +97,8 @@ importers:
         specifier: ^14.0.0
         version: 14.0.3
       hono:
-        specifier: ^4.7.0
-        version: 4.11.9
+        specifier: ^4.12.2
+        version: 4.12.2
       ora:
         specifier: ^9.3.0
         version: 9.3.0
@@ -171,8 +171,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       hono:
-        specifier: ^4.7.0
-        version: 4.11.9
+        specifier: ^4.12.2
+        version: 4.12.2
       jszip:
         specifier: ^3.10.1
         version: 3.10.1
@@ -2540,8 +2540,8 @@ packages:
   hermes-parser@0.25.1:
     resolution: {integrity: sha512-6pEjquH3rqaI6cYAXYPcz9MS4rY6R4ngRgrgfDshRptUZIc3lw0MCIJIGDj9++mfySOuPTHB4nrSW99BCvOPIA==}
 
-  hono@4.11.9:
-    resolution: {integrity: sha512-Eaw2YTGM6WOxA6CXbckaEvslr2Ne4NFsKrvc0v97JD5awbmeBLO5w9Ho9L9kmKonrwF9RJlW6BxT1PVv/agBHQ==}
+  hono@4.12.2:
+    resolution: {integrity: sha512-gJnaDHXKDayjt8ue0n8Gs0A007yKXj4Xzb8+cNjZeYsSzzwKc0Lr+OZgYwVfB0pHfUs17EPoLvrOsEaJ9mj+Tg==}
     engines: {node: '>=16.9.0'}
 
   hosted-git-info@2.8.9:
@@ -4322,13 +4322,13 @@ snapshots:
 
   '@floating-ui/utils@0.2.10': {}
 
-  '@hono/node-server@1.19.9(hono@4.11.9)':
+  '@hono/node-server@1.19.9(hono@4.12.2)':
     dependencies:
-      hono: 4.11.9
+      hono: 4.12.2
 
-  '@hono/zod-validator@0.7.6(hono@4.11.9)(zod@4.3.6)':
+  '@hono/zod-validator@0.7.6(hono@4.12.2)(zod@4.3.6)':
     dependencies:
-      hono: 4.11.9
+      hono: 4.12.2
       zod: 4.3.6
 
   '@humanfs/core@0.19.1': {}
@@ -6032,7 +6032,7 @@ snapshots:
     dependencies:
       hermes-estree: 0.25.1
 
-  hono@4.11.9: {}
+  hono@4.12.2: {}
 
   hosted-git-info@2.8.9: {}
 
