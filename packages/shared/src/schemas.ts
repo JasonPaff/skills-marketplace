@@ -276,3 +276,11 @@ export const createBatchUploadSchema = z
 export const skillsQuerySchema = z.object({
   search: z.string().optional(),
 });
+
+export const agentsQuerySchema = z.object({
+  search: z.string().optional(),
+});
+
+export const rulesQuerySchema = z.object({
+  search: z.string().optional(),
+});

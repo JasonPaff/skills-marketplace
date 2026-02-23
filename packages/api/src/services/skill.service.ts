@@ -18,40 +18,21 @@ export function createSkillService(queries: SkillQueries, github: GitHubClient) 
 
   return {
     async createSkill(data: CreateSkill) {
-      const { description, files, name } = data;
-
-      // Validate SKILL.md frontmatter before committing
-      const skillMdFile = files.find((f) => f.path === 'SKILL.md');
-      if (!skillMdFile) {
-        throw new HTTPException(400, { message: 'A SKILL.md file is required' });
-      }
-
-      try {
-        const decoded = Buffer.from(skillMdFile.content, 'base64').toString('utf-8');
-        parseSkillMd(decoded);
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Invalid SKILL.md';
-        throw new HTTPException(400, { message });
-      }
-
-      // Determine GitHub path
-      const githubPath = deriveGithubPath(name);
+      const validated = this.validateSkill(data);
 
       // Commit files to GitHub (before DB insert so a failure doesn't leave orphaned records)
-      const githubFiles = files.map((file) => ({
+      const githubFiles = data.files.map((file) => ({
         content: file.content,
-        path: `${githubPath}/${file.path}`,
+        path: `${validated.githubPath}/${file.path}`,
       }));
-      await github.commitFiles(githubFiles, `Add skill: ${name}`);
+      await github.commitFiles(githubFiles, `Add skill: ${data.name}`);
 
       // Insert metadata into database
-      const skill = await queries.insertSkill({
-        description,
-        githubPath,
-        name,
+      return this.insertSkillRecord({
+        description: validated.description,
+        githubPath: validated.githubPath,
+        name: validated.name,
       });
-
-      return skill;
     },
 
     async downloadSkill(id: string) {
@@ -86,6 +67,30 @@ export function createSkillService(queries: SkillQueries, github: GitHubClient) 
 
     async getSkills(query?: SkillsQuery) {
       return queries.selectSkills(query);
+    },
+
+    insertSkillRecord(values: { description: string; githubPath: string; name: string }) {
+      return queries.insertSkill(values);
+    },
+
+    validateSkill(data: CreateSkill) {
+      const { description, files, name } = data;
+
+      const skillMdFile = files.find((f) => f.path === 'SKILL.md');
+      if (!skillMdFile) {
+        throw new HTTPException(400, { message: 'A SKILL.md file is required' });
+      }
+
+      try {
+        const decoded = Buffer.from(skillMdFile.content, 'base64').toString('utf-8');
+        parseSkillMd(decoded);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Invalid SKILL.md';
+        throw new HTTPException(400, { message });
+      }
+
+      const githubPath = deriveGithubPath(name);
+      return { ...data, description, githubPath, name };
     },
   };
 }

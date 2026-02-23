@@ -13,9 +13,11 @@ import type { AppEnv } from './types/env.js';
 import { createDb } from './db/index.js';
 import { createGitHubClient } from './lib/github.js';
 import { createAgentQueries, createRuleQueries, createSkillQueries } from './queries/index.js';
+import { agentsRouter } from './routes/agents.js';
+import { rulesRouter } from './routes/rules.js';
 import { skillsRouter } from './routes/skills.js';
 import { uploadRouter } from './routes/upload.js';
-import { createSkillService, createUploadService } from './services/index.js';
+import { createAgentService, createRuleService, createSkillService, createUploadService } from './services/index.js';
 
 const app = new Hono<AppEnv>();
 
@@ -47,9 +49,13 @@ app.use('/api/*', async (c, next) => {
   const ruleQueries = createRuleQueries(db);
   const skillQueries = createSkillQueries(db);
 
+  const agentService = createAgentService(agentQueries, github);
+  const ruleService = createRuleService(ruleQueries, github);
   const skillService = createSkillService(skillQueries, github);
-  const uploadService = createUploadService(skillQueries, agentQueries, ruleQueries, github);
+  const uploadService = createUploadService(skillService, agentService, ruleService, github);
 
+  c.set('agentService', agentService);
+  c.set('ruleService', ruleService);
   c.set('skillService', skillService);
   c.set('uploadService', uploadService);
 
@@ -60,6 +66,8 @@ app.use('/api/*', async (c, next) => {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- used only for AppType export
 const routes = app
+  .route('/api/agents', agentsRouter)
+  .route('/api/rules', rulesRouter)
   .route('/api/skills', skillsRouter)
   .route('/api/upload', uploadRouter);
 
