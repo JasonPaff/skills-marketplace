@@ -1,8 +1,8 @@
 ---
 name: sync-bruno
-allowed-tools: Read(*), Glob(*), Grep(*), Write(*), Edit(*), Bash(mkdir *)
 description: Sync Bruno API collection with actual API endpoints
 disable-model-invocation: true
+model: haiku
 ---
 
 # Sync Bruno API Collection
